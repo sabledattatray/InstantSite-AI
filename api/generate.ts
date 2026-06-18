@@ -128,6 +128,6 @@ FAILURE TO FOLLOW THESE RULES RESULTS IN TERMINATION. Your output must instantly
     res.json(result);
   } catch (error: any) {
     console.error("AI Generation Error:", error);
-    res.status(500).json({ error: error.message || "Failed to generate website" });
+    res.status(500).json({ error: error.message || String(error) || "Failed to generate website" });
   }
 }

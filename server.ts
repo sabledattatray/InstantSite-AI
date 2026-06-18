@@ -3,7 +3,8 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const apiKey = process.env.GEMINI_API_KEY || "";
+const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
 async function startServer() {
   const app = express();
@@ -13,6 +14,10 @@ async function startServer() {
 
   // API Routes
   app.post("/api/generate", async (req, res) => {
+    if (!ai) {
+      return res.status(500).json({ error: "Server Configuration Error: Missing GEMINI_API_KEY environment variable." });
+    }
+
     try {
       const { prompt, stylePreset, typography, brandColor } = req.body;
       if (!prompt) {
@@ -116,7 +121,7 @@ FAILURE TO FOLLOW THESE RULES RESULTS IN TERMINATION. Your output must instantly
       res.json(result);
     } catch (error: any) {
       console.error("AI Generation Error:", error);
-      res.status(500).json({ error: error.message || "Failed to generate website" });
+      res.status(500).json({ error: error.message || String(error) || "Failed to generate website" });
     }
   });
 
