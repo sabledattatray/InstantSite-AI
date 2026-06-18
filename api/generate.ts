@@ -2,7 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 
 export default async function handler(req: any, res: any) {
   // CORS headers
-  res.setHeader('Access-Control-Allow-Credentials', true)
+  res.setHeader('Access-Control-Allow-Credentials', 'true')
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT')
   res.setHeader(
@@ -23,11 +23,20 @@ export default async function handler(req: any, res: any) {
   const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
   if (!ai) {
-    return res.status(500).json({ error: "Server Configuration Error: Missing GEMINI_API_KEY environment variable. Please add it to your Vercel project settings." });
+    return res.status(500).json({ error: "Configuration Error: GEMINI_API_KEY is not set in Vercel Environment Variables. Please add it in project settings and redeploy." });
+  }
+
+  let body = req.body;
+  if (typeof body === 'string') {
+    try {
+      body = JSON.parse(body);
+    } catch (e) {
+      return res.status(400).json({ error: "Invalid JSON body provided." });
+    }
   }
 
   try {
-    const { prompt, stylePreset, typography, brandColor } = req.body;
+    const { prompt, stylePreset, typography, brandColor } = body || {};
     if (!prompt) {
       return res.status(400).json({ error: "Prompt is required" });
     }
