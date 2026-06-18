@@ -123,7 +123,10 @@ FAILURE TO FOLLOW THESE RULES RESULTS IN TERMINATION. Your output must instantly
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { 
+        middlewareMode: true,
+        hmr: false
+      },
       appType: "spa",
     });
     app.use(vite.middlewares);
