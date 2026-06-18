@@ -53,7 +53,9 @@ CRITICAL DESIGN RULES (STRICTLY ENFORCED):
    - CARDS: Must look premium. \`bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-8 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-1\`.
    - BUTTONS: \`inline-flex items-center justify-center px-8 py-4 rounded-full font-semibold transition-all hover:scale-105 active:scale-95 bg-${brandColor}-600 text-white hover:bg-${brandColor}-700 shadow-lg shadow-${brandColor}-500/30\`.
 4. IMAGES/VISUALS:
-   - Use beautiful gradient blocks: \`bg-gradient-to-br from-${brandColor}-500 to-${brandColor}-700 rounded-3xl aspect-video shadow-2xl\` OR high-quality Unsplash source URLs like \`https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80\`.
+   - You MUST use beautiful, valid images that load successfully.
+   - Use stable image services: \`https://picsum.photos/seed/\${Math.random()}/1200/800\` or hardcoded Unsplash verified URLs like \`https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80\`.
+   - Alternatively, use beautiful CSS gradient blocks for hero areas: \`bg-gradient-to-br from-${brandColor}-500 to-${brandColor}-700 rounded-3xl aspect-video shadow-2xl\`.
 5. RESPONSIVENESS:
    - MUST look perfect on mobile. Always use \`flex-col md:flex-row\` and scale typography correctly.
 
