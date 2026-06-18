@@ -226,13 +226,13 @@ ${site.html}
         {/* 3 & 4. MAIN CONTENT */}
         <main className="flex-1 overflow-hidden flex flex-col lg:flex-row relative z-0">
           
-          <div className="flex-1 overflow-hidden flex relative">
+          <div className={`overflow-hidden flex relative ${(!site || !isFullscreen) ? 'flex-1' : 'hidden'}`}>
             {/* Scrollable Main Area */}
             <div className="flex-1 w-full overflow-y-auto no-scrollbar relative flex flex-col lg:flex-row">
               {activeNav === 'generate' && (
                 <>
-                  {/* GENERATION / PROMPT AREA */}
-                  <div className={`transition-all duration-500 ease-in-out flex flex-col ${(site && isFullscreen) ? 'hidden' : ''} ${site ? 'w-full lg:w-[450px] xl:w-[500px] border-r border-ai-text/5 shrink-0 bg-ai-surface/30 backdrop-blur-md' : 'flex-1 w-full bg-transparent max-w-6xl mx-auto px-6'} overflow-y-auto`}>
+                    {/* GENERATION / PROMPT AREA */}
+                  <div className={`transition-all duration-500 ease-in-out ${(site && isFullscreen) ? 'hidden' : 'flex flex-col'} ${site ? 'w-full lg:w-[450px] xl:w-[500px] border-r border-ai-text/5 shrink-0 bg-ai-surface/30 backdrop-blur-md' : 'flex-1 w-full bg-transparent max-w-6xl mx-auto px-6'} overflow-y-auto`}>
                     
                     <div className={`flex flex-col flex-1 ${site ? 'p-6 pb-24 lg:pb-6' : 'pt-16 pb-12'}`}>
 
