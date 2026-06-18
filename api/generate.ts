@@ -91,7 +91,7 @@ FAILURE TO FOLLOW THESE RULES RESULTS IN TERMINATION. Your output must instantly
     while (retries > 0) {
       try {
         const response = await ai.models.generateContent({
-          model: "gemini-2.5-flash-8b",
+          model: "gemini-2.5-flash",
           contents: prompt,
           config: {
             systemInstruction: systemPrompt,
