@@ -84,7 +84,7 @@ CRITICAL DESIGN RULES (STRICTLY ENFORCED):
    - Include JS for mobile hamburgers and menu toggling.
    - For links with \`href="#"\`, you MUST include \`e.preventDefault();\` in your JS click handlers to prevent the iframe from navigating and breaking the preview.
 
-FAILURE TO FOLLOW THESE RULES RESULTS IN TERMINATION. Your output must instantly look like a $10k/month agency produced it. Refine margins, use huge white space, and elegant styling. Do not apologize, do not explain. Return ONLY valid JSON.`;
+FAILURE TO FOLLOW THESE RULES RESULTS IN TERMINATION. Your output must instantly look like a $10k/month agency produced it. Refine margins, use huge white space, and elegant styling. DO NOT output overly verbose HTML; keep code concise to avoid timeouts. Do not apologize. Return ONLY valid JSON.`;
 
     let text = "";
     let retries = 3;
