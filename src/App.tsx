@@ -3,7 +3,7 @@ import JSZip from 'jszip';
 import { 
   Download, Code2, Play, Loader2, Sparkles, Wand2, MonitorPlay, 
   Smartphone, Tablet, Monitor, LayoutDashboard, History, LayoutTemplate, 
-  FolderKanban, Settings, Search, Moon, Sun, Zap, User, Eraser, Dices, ChevronRight, Layout, Palette, Type, RefreshCw, PenTool, Globe, Focus, Layers, Check
+  FolderKanban, Settings, Search, Moon, Sun, Zap, User, Eraser, Dices, ChevronRight, Layout, Palette, Type, RefreshCw, PenTool, Globe, Focus, Layers, Check, Maximize, Minimize 
 } from 'lucide-react';
 import { Editor } from '@monaco-editor/react';
 
@@ -28,6 +28,9 @@ export default function App() {
   const [copySuccess, setCopySuccess] = useState(false);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [deploySuccess, setDeploySuccess] = useState(false);
 
   // Toggle Theme
   const toggleTheme = () => {
@@ -136,10 +139,21 @@ ${site.html}
     setPrompt(ideas[Math.floor(Math.random() * ideas.length)]);
   };
 
+  const handleDeploy = () => {
+    setIsDeploying(true);
+    setDeploySuccess(false);
+    setTimeout(() => {
+      setIsDeploying(false);
+      setDeploySuccess(true);
+      setTimeout(() => setDeploySuccess(false), 3000);
+    }, 1500);
+  };
+
   return (
     <div className="flex h-screen bg-ai-bg text-ai-text font-sans overflow-hidden">
       
       {/* 1. LEFT SIDEBAR */}
+      {!isFullscreen && (
       <aside className="w-[72px] lg:w-64 flex-shrink-0 bg-ai-surface/50 backdrop-blur-2xl border-r border-ai-text/5 flex flex-col transition-all duration-300 relative z-20">
         <div className="h-16 flex items-center justify-center lg:justify-start lg:px-6 border-b border-ai-text/5 shrink-0">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-ai-primary to-ai-accent flex items-center justify-center shadow-lg shadow-ai-primary/20 shrink-0">
@@ -169,12 +183,14 @@ ${site.html}
           </div>
         </div>
       </aside>
+      )}
 
       {/* MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col min-w-0 bg-transparent relative">
         <div className="absolute top-0 inset-x-0 h-96 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-ai-primary/20 via-ai-bg/0 to-transparent -z-10 opacity-70 pointer-events-none"></div>
         
         {/* 2. TOP BAR */}
+        {!isFullscreen && (
         <header className="h-16 flex-shrink-0 flex items-center justify-between px-6 lg:px-10 border-b border-ai-text/5 bg-ai-bg/60 backdrop-blur-lg z-10 w-full">
           <div className="flex-1 flex items-center max-w-md">
             <div className="relative w-full">
@@ -205,6 +221,7 @@ ${site.html}
             </button>
           </div>
         </header>
+        )}
 
         {/* 3 & 4. MAIN CONTENT */}
         <main className="flex-1 overflow-hidden flex flex-col lg:flex-row relative z-0">
@@ -215,7 +232,7 @@ ${site.html}
               {activeNav === 'generate' && (
                 <>
                   {/* GENERATION / PROMPT AREA */}
-                  <div className={`transition-all duration-500 ease-in-out flex flex-col ${site ? 'w-full lg:w-[450px] xl:w-[500px] border-r border-ai-text/5 shrink-0 bg-ai-surface/30 backdrop-blur-md' : 'flex-1 w-full bg-transparent max-w-6xl mx-auto px-6'} overflow-y-auto`}>
+                  <div className={`transition-all duration-500 ease-in-out flex flex-col ${(site && isFullscreen) ? 'hidden' : ''} ${site ? 'w-full lg:w-[450px] xl:w-[500px] border-r border-ai-text/5 shrink-0 bg-ai-surface/30 backdrop-blur-md' : 'flex-1 w-full bg-transparent max-w-6xl mx-auto px-6'} overflow-y-auto`}>
                     
                     <div className={`flex flex-col flex-1 ${site ? 'p-6 pb-24 lg:pb-6' : 'pt-16 pb-12'}`}>
 
@@ -408,8 +425,25 @@ ${site.html}
                       >
                         <Download className="w-4 h-4 sm:w-3.5 sm:h-3.5" /> <span className="hidden sm:inline">ZIP</span>
                       </button>
-                      <button className="px-3 sm:px-4 py-1.5 text-xs font-semibold bg-gradient-to-r from-ai-primary to-ai-secondary text-ai-text rounded-lg transition-colors flex items-center gap-1.5 shadow-[0_0_15px_rgba(108,92,231,0.3)] hover:shadow-[0_0_20px_rgba(108,92,231,0.5)]">
-                        <Globe className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Deploy</span>
+                      <button 
+                        onClick={handleDeploy}
+                        disabled={isDeploying}
+                        className="px-3 sm:px-4 py-1.5 text-xs font-semibold bg-gradient-to-r from-ai-primary to-ai-secondary text-ai-text rounded-lg transition-colors flex items-center gap-1.5 shadow-[0_0_15px_rgba(108,92,231,0.3)] hover:shadow-[0_0_20px_rgba(108,92,231,0.5)] disabled:opacity-70"
+                      >
+                        {isDeploying ? (
+                          <><Loader2 className="w-3.5 h-3.5 animate-spin" /> <span className="hidden sm:inline">Deploying...</span></>
+                        ) : deploySuccess ? (
+                          <><Check className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Deployed!</span></>
+                        ) : (
+                          <><Globe className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Deploy</span></>
+                        )}
+                      </button>
+                      <button 
+                        onClick={() => setIsFullscreen(!isFullscreen)}
+                        className="p-1.5 sm:px-3 sm:py-1.5 text-xs font-semibold bg-ai-text/5 hover:bg-ai-text/10 text-ai-text rounded-lg border border-ai-text/5 transition-colors flex items-center gap-1.5"
+                        title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+                      >
+                        {isFullscreen ? <Minimize className="w-4 h-4 sm:w-3.5 sm:h-3.5" /> : <Maximize className="w-4 h-4 sm:w-3.5 sm:h-3.5" />}
                       </button>
                     </>
                   )}

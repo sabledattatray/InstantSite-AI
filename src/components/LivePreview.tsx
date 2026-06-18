@@ -39,6 +39,12 @@ const EDITOR_SCRIPT = `
       });
 
       document.addEventListener('click', (e) => {
+        const link = e.target.closest('a');
+        if (link) {
+          e.preventDefault();
+          console.log('Navigation prevented in Live Preview');
+        }
+        
         if (!isEditMode) return;
         if (e.target.tagName === 'HTML' || e.target.tagName === 'BODY') {
            // Clicked background, deselect
@@ -250,17 +256,11 @@ export default function LivePreview({ site, viewportSize = 'desktop', isEditMode
   return (
     <div className="flex-1 w-full bg-ai-bg/50 relative flex justify-center overflow-auto items-start p-2 sm:p-4 md:p-8">
       
-      <div className={`${getContainerWidth()} my-auto bg-white transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] border border-ai-text/10 overflow-hidden relative ${viewportSize !== 'desktop' ? 'rounded-[2rem] ring-8 ring-ai-surface flex-shrink-0' : 'rounded-xl h-full'}`}>
+      <div className={`${getContainerWidth()} shrink-0 bg-white transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] border border-ai-text/10 overflow-hidden relative ${viewportSize !== 'desktop' ? 'rounded-[2rem] ring-8 ring-ai-surface mx-auto my-4 lg:my-8' : 'rounded-xl h-full'}`}>
         
-        {viewportSize !== 'desktop' && (
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-ai-surface rounded-b-3xl z-50 flex justify-center items-center">
-            <div className="w-16 h-1.5 bg-ai-surface/10 rounded-full"></div>
-          </div>
-        )}
-
         <iframe
           ref={iframeRef}
-          className="w-full h-full border-none bg-ai-surface absolute inset-0"
+          className="w-full h-full border-none bg-ai-surface block"
           title="Live Preview"
           sandbox="allow-scripts allow-same-origin"
           aria-label="Website Live Preview"

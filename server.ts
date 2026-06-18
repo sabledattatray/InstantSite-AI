@@ -58,6 +58,9 @@ CRITICAL DESIGN RULES (STRICTLY ENFORCED):
    - Alternatively, use beautiful CSS gradient blocks for hero areas: \`bg-gradient-to-br from-${brandColor}-500 to-${brandColor}-700 rounded-3xl aspect-video shadow-2xl\`.
 5. RESPONSIVENESS:
    - MUST look perfect on mobile. Always use \`flex-col md:flex-row\` and scale typography correctly.
+6. INTERACTIVITY & EVENTS:
+   - Include JS for mobile hamburgers and menu toggling.
+   - For links with \`href="#"\`, you MUST include \`e.preventDefault();\` in your JS click handlers to prevent the iframe from navigating and breaking the preview.
 
 FAILURE TO FOLLOW THESE RULES RESULTS IN TERMINATION. Your output must instantly look like a $10k/month agency produced it. Refine margins, use huge white space, and elegant styling. Do not apologize, do not explain. Return ONLY valid JSON.`;
 
