@@ -1,14 +1,27 @@
-import express from "express";
 import { GoogleGenAI } from "@google/genai";
 
-const app = express();
-app.use(express.json());
+export default async function handler(req: any, res: any) {
+  // CORS headers
+  res.setHeader('Access-Control-Allow-Credentials', true)
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT')
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  )
 
-// Initialize AI, falling back to empty if needed for build time
-const apiKey = process.env.GEMINI_API_KEY || "";
-const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
+  if (req.method === 'OPTIONS') {
+    res.status(200).end()
+    return
+  }
 
-app.post("/api/generate", async (req, res) => {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  const apiKey = process.env.GEMINI_API_KEY || "";
+  const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
+
   if (!ai) {
     return res.status(500).json({ error: "Server Configuration Error: Missing GEMINI_API_KEY environment variable. Please add it to your Vercel project settings." });
   }
@@ -117,7 +130,4 @@ FAILURE TO FOLLOW THESE RULES RESULTS IN TERMINATION. Your output must instantly
     console.error("AI Generation Error:", error);
     res.status(500).json({ error: error.message || "Failed to generate website" });
   }
-});
-
-// Vercel Serverless Functions export handler
-export default app;
+}
