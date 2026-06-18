@@ -100,7 +100,7 @@ Live Preview + Download
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/instantsite-ai.git
+git clone https://github.com/dattasable/instantsite-ai.git
 
 # Install dependencies
 npm install
@@ -167,8 +167,8 @@ MIT License — Free to use and modify
 
 Datta Sable
 
-- GitHub: https://github.com/yourusername
-- LinkedIn: https://linkedin.com/in/yourprofile
+- GitHub: https://github.com/dattasable
+- LinkedIn: https://linkedin.com/in/dattasable
 
 ⭐ **If you like this project:** Give it a star ⭐ and share it with other developers!
 
