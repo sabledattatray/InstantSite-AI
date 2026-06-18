@@ -1,25 +1,25 @@
 import express from "express";
-import path from "path";
-import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const app = express();
+app.use(express.json());
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+// Initialize AI, falling back to empty if needed for build time
+const apiKey = process.env.GEMINI_API_KEY || "";
+const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
-  app.use(express.json());
+app.post("/api/generate", async (req, res) => {
+  if (!ai) {
+    return res.status(500).json({ error: "Server Configuration Error: Missing GEMINI_API_KEY environment variable. Please add it to your Vercel project settings." });
+  }
 
-  // API Routes
-  app.post("/api/generate", async (req, res) => {
-    try {
-      const { prompt, stylePreset, typography, brandColor } = req.body;
-      if (!prompt) {
-        return res.status(400).json({ error: "Prompt is required" });
-      }
+  try {
+    const { prompt, stylePreset, typography, brandColor } = req.body;
+    if (!prompt) {
+      return res.status(400).json({ error: "Prompt is required" });
+    }
 
-      const systemPrompt = `You are an elite senior full-stack web architect, UI/UX expert, and Tailwind CSS master.
+    const systemPrompt = `You are an elite senior full-stack web architect, UI/UX expert, and Tailwind CSS master.
 You generate production-ready, ultra-premium, award-winning responsive websites.
 
 TARGET OUTPUT:
@@ -64,80 +64,60 @@ CRITICAL DESIGN RULES (STRICTLY ENFORCED):
 
 FAILURE TO FOLLOW THESE RULES RESULTS IN TERMINATION. Your output must instantly look like a $10k/month agency produced it. Refine margins, use huge white space, and elegant styling. Do not apologize, do not explain. Return ONLY valid JSON.`;
 
-      let text = "";
-      let retries = 3;
-      while (retries > 0) {
-        try {
-          const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt,
-            config: {
-              systemInstruction: systemPrompt,
-              responseMimeType: "application/json",
-              temperature: 0.7,
-            },
-          });
-          text = response.text;
-          break;
-        } catch (error: any) {
-          if ((error.message?.includes("503") || error.message?.includes("429")) && retries > 1) {
-            console.log(`API busy, retrying... (${retries - 1} attempts left)`);
-            await new Promise(res => setTimeout(res, 2000));
-            retries--;
-          } else {
-            throw error;
-          }
+    let text = "";
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        const response = await ai.models.generateContent({
+          model: "gemini-2.5-flash",
+          contents: prompt,
+          config: {
+            systemInstruction: systemPrompt,
+            responseMimeType: "application/json",
+            temperature: 0.7,
+          },
+        });
+        text = response.text || "";
+        break;
+      } catch (error: any) {
+        if ((error.message?.includes("503") || error.message?.includes("429")) && retries > 1) {
+          console.log(`API busy, retrying... (${retries - 1} attempts left)`);
+          await new Promise(res => setTimeout(res, 2000));
+          retries--;
+        } else {
+          throw error;
         }
       }
-
-      let result;
-      try {
-         // Sanitize response text in case it's wrapped in markdown code blocks
-         let sanitizedText = text.trim();
-         if (sanitizedText.startsWith("```json")) {
-           sanitizedText = sanitizedText.slice(7);
-         } else if (sanitizedText.startsWith("```")) {
-           sanitizedText = sanitizedText.slice(3);
-         }
-         if (sanitizedText.endsWith("```")) {
-           sanitizedText = sanitizedText.slice(0, -3);
-         }
-         sanitizedText = sanitizedText.trim();
-         
-         result = JSON.parse(sanitizedText);
-         result.typography = typography;
-         result.brandColor = brandColor;
-      } catch (e) {
-         console.error("JSON parsing error:", e);
-         console.error("Raw text was:", text);
-         return res.status(500).json({ error: "Failed to parse JSON response from AI." });
-      }
-
-      res.json(result);
-    } catch (error: any) {
-      console.error("AI Generation Error:", error);
-      res.status(500).json({ error: error.message || "Failed to generate website" });
     }
-  });
 
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
-    });
+    let result;
+    try {
+      let sanitizedText = text.trim();
+      if (sanitizedText.startsWith("```json")) {
+        sanitizedText = sanitizedText.slice(7);
+      } else if (sanitizedText.startsWith("```")) {
+        sanitizedText = sanitizedText.slice(3);
+      }
+      if (sanitizedText.endsWith("```")) {
+        sanitizedText = sanitizedText.slice(0, -3);
+      }
+      sanitizedText = sanitizedText.trim();
+      
+      result = JSON.parse(sanitizedText);
+      result.typography = typography;
+      result.brandColor = brandColor;
+    } catch (e) {
+      console.error("JSON parsing error:", e);
+      console.error("Raw text was:", text);
+      return res.status(500).json({ error: "Failed to parse JSON response from AI." });
+    }
+
+    res.json(result);
+  } catch (error: any) {
+    console.error("AI Generation Error:", error);
+    res.status(500).json({ error: error.message || "Failed to generate website" });
   }
+});
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
-}
-
-startServer();
+// Vercel Serverless Functions export handler
+export default app;

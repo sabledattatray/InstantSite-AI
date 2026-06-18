@@ -6,6 +6,8 @@ interface LivePreviewProps {
   site: GeneratedSite | null;
   viewportSize?: 'mobile' | 'tablet' | 'desktop';
   isEditMode?: boolean;
+  typography?: string;
+  activeBrandColor?: string;
 }
 
 const EDITOR_SCRIPT = `
@@ -97,7 +99,9 @@ const EDITOR_SCRIPT = `
               marginBottom: styles.marginBottom,
               marginLeft: styles.marginLeft,
               fontSize: styles.fontSize,
-              borderRadius: styles.borderRadius
+              borderRadius: styles.borderRadius,
+              width: styles.width,
+              height: styles.height
             }
           }
         }, '*');
@@ -119,6 +123,14 @@ const EDITOR_SCRIPT = `
            } else if (prop === 'src') {
              if (selectedEl.tagName === 'IMG') {
                selectedEl.src = value;
+             } else if (selectedEl.tagName.toLowerCase() === 'svg') {
+               const img = document.createElement('img');
+               img.src = value;
+               img.className = selectedEl.getAttribute('class') || '';
+               img.id = selectedEl.id;
+               img.style.cssText = selectedEl.style.cssText;
+               selectedEl.replaceWith(img);
+               selectedEl = img;
              } else {
                // Update background image instead if it's not an img tag
                selectedEl.style.backgroundImage = "url('" + value + "')";
@@ -136,7 +148,7 @@ const EDITOR_SCRIPT = `
   </script>
 `;
 
-export default function LivePreview({ site, viewportSize = 'desktop', isEditMode = false }: LivePreviewProps) {
+export default function LivePreview({ site, viewportSize = 'desktop', isEditMode = false, typography, activeBrandColor }: LivePreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [selectedElement, setSelectedElement] = useState<any>(null);
 
@@ -183,6 +195,14 @@ export default function LivePreview({ site, viewportSize = 'desktop', isEditMode
     // Reset selected element on new site
     setSelectedElement(null);
 
+    const actualTypography = typography || site.typography || 'Inter';
+    let htmlStr = site.html;
+    if (activeBrandColor && site.brandColor && activeBrandColor !== site.brandColor) {
+      // Very simple replace to swap Tailwind color utilities
+      const regex = new RegExp(site.brandColor, 'g');
+      htmlStr = htmlStr.replace(regex, activeBrandColor);
+    }
+
     // We inject tailwind CDN and the appropriate font based on the style selection
     const htmlContent = `
       <!DOCTYPE html>
@@ -196,7 +216,7 @@ export default function LivePreview({ site, viewportSize = 'desktop', isEditMode
             /* Base reset for preview */
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { 
-              font-family: ${site.design_style?.toLowerCase().includes('serif') ? '"Playfair Display", serif' : site.design_style?.toLowerCase().includes('mono') ? '"Space Grotesk", sans-serif' : '"Inter", sans-serif'}; 
+              font-family: ${actualTypography.toLowerCase().includes('serif') ? '"Playfair Display", serif' : actualTypography.toLowerCase().includes('space') ? '"Space Grotesk", sans-serif' : '"Inter", sans-serif'}; 
               -webkit-font-smoothing: antialiased; 
               overflow-x: hidden;
             }
@@ -205,7 +225,7 @@ export default function LivePreview({ site, viewportSize = 'desktop', isEditMode
           <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
         </head>
         <body class="bg-gray-50 text-gray-900 selection:bg-indigo-500/30">
-          ${site.html}
+          ${htmlStr}
           <script>
             try {
               ${site.js || ''}
@@ -351,6 +371,20 @@ export default function LivePreview({ site, viewportSize = 'desktop', isEditMode
                  <div>
                     <span className="text-[10px] text-ai-text/70 block mb-1">Border Radius</span>
                     <input type="text" value={selectedElement.styles.borderRadius} onChange={(e) => updateElement('borderRadius', e.target.value)} className="w-full bg-ai-text/5 border border-ai-text/5 rounded-lg p-2 text-xs text-ai-text" />
+                 </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-[10px] font-bold text-ai-text/50 uppercase tracking-widest">Dimensions</label>
+              <div className="grid grid-cols-2 gap-2">
+                 <div>
+                    <span className="text-[10px] text-ai-text/70 block mb-1">Width</span>
+                    <input type="text" value={selectedElement.styles.width || ''} onChange={(e) => updateElement('width', e.target.value)} className="w-full bg-ai-text/5 border border-ai-text/5 rounded-lg p-2 text-xs text-ai-text" placeholder="auto" />
+                 </div>
+                 <div>
+                    <span className="text-[10px] text-ai-text/70 block mb-1">Height</span>
+                    <input type="text" value={selectedElement.styles.height || ''} onChange={(e) => updateElement('height', e.target.value)} className="w-full bg-ai-text/5 border border-ai-text/5 rounded-lg p-2 text-xs text-ai-text" placeholder="auto"/>
                  </div>
               </div>
             </div>

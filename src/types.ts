@@ -5,6 +5,8 @@ export interface GeneratedSite {
   html: string;
   css: string;
   js: string;
+  typography?: string;
+  brandColor?: string;
 }
 
 export type TabType = 'preview' | 'html' | 'css' | 'js';

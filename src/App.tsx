@@ -81,6 +81,13 @@ export default function App() {
   const handleDownload = async () => {
     if (!site) return;
     
+    const actualTypography = typography || site.typography || 'Inter';
+    let htmlStr = site.html;
+    if (brandColor && site.brandColor && brandColor !== site.brandColor) {
+      const regex = new RegExp(site.brandColor, 'g');
+      htmlStr = htmlStr.replace(regex, brandColor);
+    }
+
     const zip = new JSZip();
     zip.file('index.html', `<!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
@@ -92,14 +99,14 @@ export default function App() {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body { 
-      font-family: ${site.design_style?.toLowerCase().includes('serif') ? '"Playfair Display", serif' : site.design_style?.toLowerCase().includes('mono') ? '"Space Grotesk", sans-serif' : '"Inter", sans-serif'}; 
+      font-family: ${actualTypography.toLowerCase().includes('serif') ? '"Playfair Display", serif' : actualTypography.toLowerCase().includes('space') ? '"Space Grotesk", sans-serif' : '"Inter", sans-serif'}; 
       -webkit-font-smoothing: antialiased; 
     }
   </style>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-gray-50 text-gray-900 selection:bg-indigo-500/30 font-sans">
-${site.html}
+<body class="bg-gray-50 text-gray-900 selection:bg-indigo-500/30">
+${htmlStr}
   <script src="script.js"></script>
 </body>
 </html>`);
@@ -118,7 +125,14 @@ ${site.html}
   const handleCopy = () => {
     if (!site) return;
     let textToCopy = '';
-    if (activeTab === 'html') textToCopy = site.html;
+    
+    let htmlStr = site.html;
+    if (brandColor && site.brandColor && brandColor !== site.brandColor) {
+      const regex = new RegExp(site.brandColor, 'g');
+      htmlStr = htmlStr.replace(regex, brandColor);
+    }
+
+    if (activeTab === 'html') textToCopy = htmlStr;
     if (activeTab === 'css') textToCopy = site.css;
     if (activeTab === 'js') textToCopy = site.js;
     
@@ -453,7 +467,7 @@ ${site.html}
               {/* Preview Content Area */}
               <div className="flex-1 overflow-hidden flex bg-ai-bg relative z-10 h-full w-full">
                 {activeTab === 'preview' ? (
-                  <LivePreview site={site} viewportSize={viewportSize} isEditMode={isEditMode} />
+                  <LivePreview site={site} viewportSize={viewportSize} isEditMode={isEditMode} typography={typography} activeBrandColor={brandColor} />
                 ) : (
                   <div className="flex-1 w-full relative">
                     <Editor
