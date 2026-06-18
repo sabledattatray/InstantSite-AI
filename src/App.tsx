@@ -32,6 +32,40 @@ export default function App() {
   const [isDeploying, setIsDeploying] = useState(false);
   const [deploySuccess, setDeploySuccess] = useState(false);
 
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        setIsFullscreen(false);
+      } else {
+        setIsFullscreen(true);
+      }
+    };
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+  const toggleFullscreen = async () => {
+    try {
+      if (!isFullscreen) {
+        if (document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        }
+        setIsFullscreen(true);
+      } else {
+        if (document.fullscreenElement && document.exitFullscreen) {
+          await document.exitFullscreen();
+        }
+        setIsFullscreen(false);
+      }
+    } catch (err) {
+      console.warn("Fullscreen API failed", err);
+      setIsFullscreen(!isFullscreen);
+    }
+  };
+
   // Toggle Theme
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
@@ -453,7 +487,7 @@ ${htmlStr}
                         )}
                       </button>
                       <button 
-                        onClick={() => setIsFullscreen(!isFullscreen)}
+                        onClick={toggleFullscreen}
                         className="p-1.5 sm:px-3 sm:py-1.5 text-xs font-semibold bg-ai-text/5 hover:bg-ai-text/10 text-ai-text rounded-lg border border-ai-text/5 transition-colors flex items-center gap-1.5"
                         title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
                       >
