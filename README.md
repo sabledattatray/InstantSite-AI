@@ -2,7 +2,7 @@
 
 > A next-generation AI website generator translating text prompts and design reference documents into responsive web interfaces with a live visual editor, Monaco code workspace, and JIT style compilation.
 
-[![Vercel Deployment](https://img.shields.io/badge/Deploy-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://instantsiteai.vercel.app/)
+[![Vercel Deployment](https://img.shields.io/badge/Deploy-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://instant-site-ai.vercel.app/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-00E5A0?style=for-the-badge&logo=git&logoColor=white)](LICENSE)
 [![GitHub Stars](https://img.shields.io/badge/Stars-Rate%20Us-00C2FF?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sabledattatray/InstantSite-AI)
 
@@ -60,7 +60,7 @@ InstantSite AI combines structural generation with a real-time hot-reloading ifr
 ## 🚀 Live Demo & Sandbox
 
 Access the live cloud deployment here:
-👉 **[instantsiteai.vercel.app](https://instantsiteai.vercel.app/)**
+👉 **[instant-site-ai.vercel.app](https://instant-site-ai.vercel.app/)**
 
 ---
 
