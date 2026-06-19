@@ -251,6 +251,17 @@ export default function App() {
     };
   }, []);
 
+  // Clear URL hash on route transitions and scroll to top on return
+  useEffect(() => {
+    if (currentRoute !== 'landing') {
+      if (window.location.hash) {
+        window.history.pushState("", document.title, window.location.pathname + window.location.search);
+      }
+    } else {
+      window.scrollTo({ top: 0 });
+    }
+  }, [currentRoute]);
+
   const toggleFullscreen = async () => {
     try {
       if (!isFullscreen) {
