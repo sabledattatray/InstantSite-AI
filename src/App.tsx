@@ -4,12 +4,14 @@ import {
   Download, Code2, Play, Loader2, Sparkles, Wand2, MonitorPlay, 
   Smartphone, Tablet, Monitor, LayoutDashboard, History, LayoutTemplate, 
   FolderKanban, Settings, Search, Moon, Sun, Zap, User, Eraser, Dices, ChevronRight, Layout, Palette, Type, RefreshCw, PenTool, Globe, Focus, Layers, Check, Maximize, Minimize, Compass, Star,
-  Mail, Lock, ArrowRight, Github, CheckCircle2, Shield, Server
+  Mail, Lock, ArrowRight, Github, CheckCircle2, Shield, Server, Linkedin, Instagram,
+  ArrowLeft, Calendar, Clock, Tag, Menu, X
 } from 'lucide-react';
 import { Editor } from '@monaco-editor/react';
 
 import { GeneratedSite, TabType, ViewportSize } from './types';
 import LivePreview from './components/LivePreview';
+import { posts, BlogPost } from './data/blogData';
 
 // Particle Field Backdrop matching NexDial
 function ParticleField() {
@@ -175,22 +177,37 @@ export default function App() {
   const [brandColor, setBrandColor] = useState('indigo');
   
   // Path Router Synchronization
-  const getRouteFromPath = (): 'landing' | 'auth' | 'workspace' | 'about' => {
+  const getRouteFromPath = (): 'landing' | 'auth' | 'workspace' | 'about' | 'blog' => {
     const path = window.location.pathname;
     if (path.startsWith('/about')) return 'about';
     if (path.startsWith('/auth') || path.startsWith('/login') || path.startsWith('/register')) return 'auth';
     if (path.startsWith('/workspace')) return 'workspace';
+    if (path.startsWith('/blog')) return 'blog';
     return 'landing';
   };
 
-  const [currentRoute, setCurrentRouteState] = useState<'landing' | 'auth' | 'workspace' | 'about'>(getRouteFromPath());
+  const getBlogSlugFromPath = (): string | null => {
+    const path = window.location.pathname;
+    if (path.startsWith('/blog/')) {
+      const slug = path.substring(6).trim();
+      return slug || null;
+    }
+    return null;
+  };
 
-  const setCurrentRoute = (route: 'landing' | 'auth' | 'workspace' | 'about') => {
+  const [currentRoute, setCurrentRouteState] = useState<'landing' | 'auth' | 'workspace' | 'about' | 'blog'>(getRouteFromPath());
+  const [selectedBlogSlug, setSelectedBlogSlug] = useState<string | null>(getBlogSlugFromPath());
+
+  const setCurrentRoute = (route: 'landing' | 'auth' | 'workspace' | 'about' | 'blog', slug: string | null = null) => {
     setCurrentRouteState(route);
+    setSelectedBlogSlug(slug);
     let path = '/';
     if (route === 'about') path = '/about';
     else if (route === 'auth') path = '/auth';
     else if (route === 'workspace') path = '/workspace';
+    else if (route === 'blog') {
+      path = slug ? `/blog/${slug}` : '/blog';
+    }
     
     if (window.location.pathname !== path) {
       window.history.pushState(null, '', path);
@@ -200,6 +217,7 @@ export default function App() {
   useEffect(() => {
     const handlePopState = () => {
       setCurrentRouteState(getRouteFromPath());
+      setSelectedBlogSlug(getBlogSlugFromPath());
     };
     window.addEventListener('popstate', handlePopState);
     return () => {
@@ -557,7 +575,7 @@ Generate a stunning, ultra-premium, and fully responsive website for: "${clean}"
     }, 1500);
   };
 
-  if (currentRoute === 'landing' || currentRoute === 'about') {
+  if (currentRoute === 'landing' || currentRoute === 'about' || currentRoute === 'blog') {
     return (
       <LandingPage 
         onStart={() => { setAuthView('register'); setCurrentRoute('auth'); }} 
@@ -565,7 +583,9 @@ Generate a stunning, ultra-premium, and fully responsive website for: "${clean}"
         onLogin={() => { setAuthView('login'); setCurrentRoute('auth'); }} 
         onAbout={() => setCurrentRoute('about')}
         onGoHome={() => setCurrentRoute('landing')}
-        activeView={currentRoute === 'about' ? 'about' : 'home'}
+        onGoBlog={(slug = null) => setCurrentRoute('blog', slug)}
+        activeView={currentRoute === 'blog' ? 'blog' : (currentRoute === 'about' ? 'about' : 'home')}
+        selectedBlogSlug={selectedBlogSlug}
       />
     );
   }
@@ -1878,13 +1898,38 @@ interface LandingPageProps {
   onLogin: () => void;
   onAbout: () => void;
   onGoHome: () => void;
-  activeView: 'home' | 'about';
+  onGoBlog: (slug?: string | null) => void;
+  activeView: 'home' | 'about' | 'blog';
+  selectedBlogSlug: string | null;
 }
 
-function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout, onGoHome, activeView }: LandingPageProps) {
+function LandingPage({ 
+  onStart, onStartWorkspace, onLogin, onAbout, onGoHome, onGoBlog, 
+  activeView, selectedBlogSlug 
+}: LandingPageProps) {
   const [emailSub, setEmailSub] = useState("");
   const [isSubbed, setIsSubbed] = useState(false);
   const [activeMenu, setActiveMenu] = useState<'products' | 'resources' | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  // Blog Filters & Search States
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  const handleScrollLink = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    setActiveMenu(null);
+    if (activeView === 'about' || activeView === 'blog') {
+      onGoHome();
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 150);
+    } else {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   // Interactive Mockup States
   const [mockLayout, setMockLayout] = useState<'saas' | 'portfolio' | 'store'>('saas');
@@ -1980,7 +2025,7 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout, onGoHome, ac
       {/* Header Navigation */}
       <header className="fixed top-0 left-0 right-0 h-20 bg-[#081120]/45 backdrop-blur-md border-b border-white/[0.05] z-50 transition-all select-none">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between relative">
-          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => { if (activeView === 'about') { onGoHome(); } else { window.scrollTo({ top: 0, behavior: 'smooth' }); } }}>
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => { if (activeView === 'about' || activeView === 'blog') { onGoHome(); } else { window.scrollTo({ top: 0, behavior: 'smooth' }); } }}>
             <div className="w-9 h-9 rounded-xl bg-[#090D1A] border border-white/10 flex items-center justify-center shadow-lg relative overflow-hidden shrink-0">
               <div className="absolute -inset-0.5 bg-gradient-to-tr from-[#0057D9] via-[#00C2FF] to-[#00E5A0] rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-300"></div>
               <div className="relative z-10 w-5 h-5 flex items-center justify-center">
@@ -2018,16 +2063,7 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout, onGoHome, ac
                       <span className="text-[9px] font-black text-white/30 uppercase tracking-widest block">Core Engine</span>
                       <a 
                         href="/demo" 
-                        onClick={(e) => { 
-                          e.preventDefault();
-                          setActiveMenu(null); 
-                          if (activeView === 'about') { 
-                            onGoHome(); 
-                            setTimeout(() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' }), 150); 
-                          } else {
-                            document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
-                          }
-                        }} 
+                        onClick={(e) => handleScrollLink(e, 'demo')} 
                         className="flex items-start gap-2.5 group/item hover:bg-white/[0.02] p-2 rounded-xl transition-all border border-transparent hover:border-white/[0.04]"
                       >
                         <Zap className="w-4 h-4 text-[#00C2FF] mt-0.5" />
@@ -2038,16 +2074,7 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout, onGoHome, ac
                       </a>
                       <a 
                         href="/features" 
-                        onClick={(e) => { 
-                          e.preventDefault();
-                          setActiveMenu(null); 
-                          if (activeView === 'about') { 
-                            onGoHome(); 
-                            setTimeout(() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }), 150); 
-                          } else {
-                            document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
-                          }
-                        }} 
+                        onClick={(e) => handleScrollLink(e, 'features')} 
                         className="flex items-start gap-2.5 group/item hover:bg-white/[0.02] p-2 rounded-xl transition-all border border-transparent hover:border-white/[0.04]">
                         <Code2 className="w-4 h-4 text-[#00E5A0] mt-0.5" />
                         <div>
@@ -2060,16 +2087,7 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout, onGoHome, ac
                       <span className="text-[9px] font-black text-white/30 uppercase tracking-widest block">Pipelines</span>
                       <a 
                         href="/features" 
-                        onClick={(e) => { 
-                          e.preventDefault();
-                          setActiveMenu(null); 
-                          if (activeView === 'about') { 
-                            onGoHome(); 
-                            setTimeout(() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }), 150); 
-                          } else {
-                            document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
-                          }
-                        }} 
+                        onClick={(e) => handleScrollLink(e, 'features')} 
                         className="flex items-start gap-2.5 group/item hover:bg-white/[0.02] p-2 rounded-xl transition-all border border-transparent hover:border-white/[0.04]">
                         <Globe className="w-4 h-4 text-rose-400 mt-0.5" />
                         <div>
@@ -2079,16 +2097,7 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout, onGoHome, ac
                       </a>
                       <a 
                         href="/features" 
-                        onClick={(e) => { 
-                          e.preventDefault();
-                          setActiveMenu(null); 
-                          if (activeView === 'about') { 
-                            onGoHome(); 
-                            setTimeout(() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }), 150); 
-                          } else {
-                            document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
-                          }
-                        }} 
+                        onClick={(e) => handleScrollLink(e, 'features')} 
                         className="flex items-start gap-2.5 group/item hover:bg-white/[0.02] p-2 rounded-xl transition-all border border-transparent hover:border-white/[0.04]">
                         <Sparkles className="w-4 h-4 text-[#00C2FF] mt-0.5" />
                         <div>
@@ -2132,48 +2141,21 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout, onGoHome, ac
                 <div className="absolute top-[65px] left-1/2 -translate-x-1/2 w-48 bg-[#0E1629]/95 backdrop-blur-2xl border border-white/[0.08] p-3 rounded-2xl shadow-2xl animate-scale-in z-50 flex flex-col gap-1 text-left">
                   <a 
                     href="/demo" 
-                    onClick={(e) => { 
-                      e.preventDefault();
-                      setActiveMenu(null); 
-                      if (activeView === 'about') { 
-                        onGoHome(); 
-                        setTimeout(() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' }), 150); 
-                      } else {
-                        document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
-                      }
-                    }} 
+                    onClick={(e) => handleScrollLink(e, 'demo')} 
                     className="py-2 px-3 hover:bg-white/[0.03] rounded-xl text-xs text-white/70 hover:text-white transition-colors font-medium"
                   >
                     Layout Templates
                   </a>
                   <a 
                     href="/features" 
-                    onClick={(e) => { 
-                      e.preventDefault();
-                      setActiveMenu(null); 
-                      if (activeView === 'about') { 
-                        onGoHome(); 
-                        setTimeout(() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }), 150); 
-                      } else {
-                        document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
-                      }
-                    }} 
+                    onClick={(e) => handleScrollLink(e, 'features')} 
                     className="py-2 px-3 hover:bg-white/[0.03] rounded-xl text-xs text-white/70 hover:text-white transition-colors font-medium"
                   >
                     Platform Docs
                   </a>
                   <a 
                     href="/pricing" 
-                    onClick={(e) => { 
-                      e.preventDefault();
-                      setActiveMenu(null); 
-                      if (activeView === 'about') { 
-                        onGoHome(); 
-                        setTimeout(() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }), 150); 
-                      } else {
-                        document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
-                      }
-                    }} 
+                    onClick={(e) => handleScrollLink(e, 'pricing')} 
                     className="py-2 px-3 hover:bg-white/[0.03] rounded-xl text-xs text-white/70 hover:text-white transition-colors font-medium"
                   >
                     Pricing Plans
@@ -2184,30 +2166,88 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout, onGoHome, ac
 
             <a 
               href="/pricing" 
-              onClick={(e) => { 
-                e.preventDefault();
-                if (activeView === 'about') { 
-                  onGoHome(); 
-                  setTimeout(() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }), 150); 
-                } else {
-                  document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
-                }
-              }} 
+              onClick={(e) => handleScrollLink(e, 'pricing')} 
               className="text-sm font-semibold text-white/60 hover:text-white transition-colors"
             >
               Pricing
             </a>
-            <button onClick={onAbout} className="text-sm font-semibold text-white/60 hover:text-white transition-colors cursor-pointer bg-transparent border-none focus:outline-none">About Creator</button>
+            <button 
+              onClick={() => onGoBlog(null)} 
+              className={`text-sm font-semibold transition-colors cursor-pointer bg-transparent border-none focus:outline-none ${activeView === 'blog' ? 'text-[#00C2FF]' : 'text-white/60 hover:text-white'}`}
+            >
+              Blog
+            </button>
+            <button 
+              onClick={onAbout} 
+              className={`text-sm font-semibold transition-colors cursor-pointer bg-transparent border-none focus:outline-none ${activeView === 'about' ? 'text-[#00C2FF]' : 'text-white/60 hover:text-white'}`}
+            >
+              About Creator
+            </button>
           </nav>
 
           <div className="flex items-center gap-4">
-            <button onClick={onLogin} id="nav-btn-signin" className="px-4 py-2 text-sm font-bold text-white/70 hover:text-white transition-colors focus:outline-none cursor-pointer">Sign In</button>
-            <button onClick={onStart} id="nav-btn-signup" className="px-5 py-2.5 btn-primary text-xs font-bold rounded-xl shadow-lg shadow-[#0057D9]/20 flex items-center gap-1.5">
+            <button onClick={onLogin} id="nav-btn-signin" className="hidden sm:block px-4 py-2 text-sm font-bold text-white/70 hover:text-white transition-colors focus:outline-none cursor-pointer bg-transparent border-none">Sign In</button>
+            <button onClick={onStart} id="nav-btn-signup" className="hidden sm:flex px-5 py-2.5 btn-primary text-xs font-bold rounded-xl shadow-lg shadow-[#0057D9]/20 flex items-center gap-1.5">
               Get Started <ArrowRight size={14} />
+            </button>
+            
+            {/* Mobile Menu Button */}
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="flex md:hidden p-2 text-white/60 hover:text-[#00C2FF] focus:outline-none bg-transparent border-none cursor-pointer"
+            >
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
       </header>
+
+      {/* Mobile Menu Dropdown Panel */}
+      {mobileMenuOpen && (
+        <div className="fixed top-20 inset-x-0 bg-[#081120]/95 backdrop-blur-2xl border-b border-white/[0.08] z-40 md:hidden p-6 animate-scale-in">
+          <nav className="flex flex-col gap-4 text-left">
+            <a 
+              href="/demo" 
+              onClick={(e) => { handleScrollLink(e, 'demo'); setMobileMenuOpen(false); }} 
+              className="text-sm font-semibold text-white/60 hover:text-white transition-colors"
+            >
+              Interactive Demo
+            </a>
+            <a 
+              href="/features" 
+              onClick={(e) => { handleScrollLink(e, 'features'); setMobileMenuOpen(false); }} 
+              className="text-sm font-semibold text-white/60 hover:text-white transition-colors"
+            >
+              Features
+            </a>
+            <a 
+              href="/pricing" 
+              onClick={(e) => { handleScrollLink(e, 'pricing'); setMobileMenuOpen(false); }} 
+              className="text-sm font-semibold text-white/60 hover:text-white transition-colors"
+            >
+              Pricing
+            </a>
+            <button 
+              onClick={() => { onGoBlog(null); setMobileMenuOpen(false); }} 
+              className={`text-sm font-semibold text-left transition-colors cursor-pointer bg-transparent border-none focus:outline-none ${activeView === 'blog' ? 'text-[#00C2FF]' : 'text-white/60 hover:text-white'}`}
+            >
+              Blog
+            </button>
+            <button 
+              onClick={() => { onAbout(); setMobileMenuOpen(false); }} 
+              className={`text-sm font-semibold text-left transition-colors cursor-pointer bg-transparent border-none focus:outline-none ${activeView === 'about' ? 'text-[#00C2FF]' : 'text-white/60 hover:text-white'}`}
+            >
+              About Creator
+            </button>
+            <div className="border-t border-white/[0.06] pt-4 mt-2 flex flex-col gap-3">
+              <button onClick={() => { onLogin(); setMobileMenuOpen(false); }} className="w-full py-2.5 text-center text-sm font-bold text-white/70 hover:text-white border border-white/10 rounded-xl transition-colors bg-transparent">Sign In</button>
+              <button onClick={() => { onStart(); setMobileMenuOpen(false); }} className="w-full py-2.5 bg-gradient-to-r from-[#0057D9] to-[#00C2FF] text-white text-center text-xs font-bold rounded-xl shadow-lg flex items-center justify-center gap-1.5 border-none">
+                Get Started <ArrowRight size={14} />
+              </button>
+            </div>
+          </nav>
+        </div>
+      )}
 
       {/* Hero Section */}
       <main className="pt-32 relative z-10">
@@ -2837,10 +2877,61 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout, onGoHome, ac
                   Designing digital architectures, deep neural compilers, and next-generation interactive AI user experiences.
                 </p>
 
-                <div className="w-full border-t border-white/[0.06] pt-5 flex items-center justify-around">
-                  <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2.5 bg-white/[0.02] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl text-white/60 hover:text-white transition-all cursor-pointer" title="GitHub"><Github size={16} /></a>
-                  <a href="https://dattasable.com" target="_blank" rel="noopener noreferrer" className="p-2.5 bg-white/[0.02] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl text-white/60 hover:text-[#00E5A0] transition-all cursor-pointer font-bold text-xs" title="Website">↗</a>
-                  <a href="mailto:contact@dattasable.com" className="p-2.5 bg-white/[0.02] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl text-white/60 hover:text-rose-400 transition-all cursor-pointer" title="Email"><Mail size={16} /></a>
+                <div className="w-full border-t border-white/[0.06] pt-5 flex items-center justify-around gap-1.5 flex-wrap">
+                  <a 
+                    href="https://github.com/sabledattatray" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="p-2 bg-white/[0.02] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl text-white/60 hover:text-white transition-all duration-300 cursor-pointer hover:scale-110 active:scale-95 shadow-sm hover:shadow-white/10" 
+                    title="GitHub"
+                  >
+                    <Github size={16} />
+                  </a>
+                  <a 
+                    href="https://x.com/sabledattatray" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="p-2 bg-white/[0.02] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl text-white/60 hover:text-[#00C2FF] transition-all duration-300 cursor-pointer hover:scale-110 active:scale-95 shadow-sm hover:shadow-[#00C2FF]/10 flex items-center justify-center w-[34px] h-[34px]" 
+                    title="X / Twitter"
+                  >
+                    <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                    </svg>
+                  </a>
+                  <a 
+                    href="https://www.linkedin.com/in/dattasable/" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="p-2 bg-white/[0.02] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl text-white/60 hover:text-[#0A66C2] transition-all duration-300 cursor-pointer hover:scale-110 active:scale-95 shadow-sm hover:shadow-[#0A66C2]/10" 
+                    title="LinkedIn"
+                  >
+                    <Linkedin size={16} />
+                  </a>
+                  <a 
+                    href="https://www.instagram.com/dattasable.in/" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="p-2 bg-white/[0.02] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl text-white/60 hover:text-[#E1306C] transition-all duration-300 cursor-pointer hover:scale-110 active:scale-95 shadow-sm hover:shadow-[#E1306C]/10" 
+                    title="Instagram"
+                  >
+                    <Instagram size={16} />
+                  </a>
+                  <a 
+                    href="https://dattasable.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="p-2 bg-white/[0.02] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl text-white/60 hover:text-[#00E5A0] transition-all duration-300 cursor-pointer hover:scale-110 active:scale-95 shadow-sm hover:shadow-[#00E5A0]/10" 
+                    title="Website"
+                  >
+                    <Globe size={16} />
+                  </a>
+                  <a 
+                    href="mailto:contact@dattasable.com" 
+                    className="p-2 bg-white/[0.02] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl text-white/60 hover:text-rose-400 transition-all duration-300 cursor-pointer hover:scale-110 active:scale-95 shadow-sm hover:shadow-rose-400/10" 
+                    title="Email"
+                  >
+                    <Mail size={16} />
+                  </a>
                 </div>
               </div>
             </div>
@@ -2894,6 +2985,231 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout, onGoHome, ac
           </div>
         )}
 
+        {activeView === 'blog' && (
+          <div className="max-w-6xl mx-auto px-6 py-8 relative z-10 text-left animate-fade-in">
+            {selectedBlogSlug ? (() => {
+              const post = posts.find(p => p.slug === selectedBlogSlug);
+              if (!post) {
+                return (
+                  <div className="text-center py-20">
+                    <h2 className="text-2xl font-bold text-white mb-4 font-syne">Article Not Found</h2>
+                    <button 
+                      onClick={() => onGoBlog(null)}
+                      className="px-6 py-3 bg-[#0057D9] text-white rounded-xl font-bold hover:bg-[#00C2FF] transition-all cursor-pointer border-none"
+                    >
+                      Back to Blog
+                    </button>
+                  </div>
+                );
+              }
+              return (
+                <article className="space-y-8 max-w-4xl mx-auto">
+                  {/* Back Navigation */}
+                  <button 
+                    onClick={() => onGoBlog(null)}
+                    className="group inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest text-[#00C2FF] hover:text-[#00E5A0] transition-colors focus:outline-none bg-transparent border-none p-0 cursor-pointer font-mono"
+                  >
+                    <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                    Back to Articles
+                  </button>
+
+                  {/* Hero Image / Banner */}
+                  <div className="relative aspect-[21/9] rounded-[2rem] overflow-hidden border border-white/[0.08] shadow-2xl">
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#081120] via-transparent to-transparent z-10" />
+                    <img 
+                      src={post.image} 
+                      alt={post.title} 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80';
+                      }}
+                    />
+                    <div className="absolute bottom-6 left-6 right-6 z-20 flex flex-wrap items-center gap-3">
+                      <span className="text-[10px] font-bold text-[#081120] bg-gradient-to-r from-[#00C2FF] to-[#00E5A0] px-3 py-1 rounded-full uppercase tracking-wider font-mono">
+                        {post.category}
+                      </span>
+                      <span className="text-[10px] font-bold text-white/60 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 font-mono">
+                        <Clock size={10} /> {post.readTime} min read
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Title & Metadata */}
+                  <div className="space-y-4">
+                    <h1 className="text-3xl md:text-5xl font-black text-white leading-tight tracking-tight font-syne">
+                      {post.title}
+                    </h1>
+                    <div className="flex flex-wrap items-center gap-6 text-xs text-white/50 border-b border-white/[0.06] pb-6 font-mono">
+                      <span className="flex items-center gap-1.5"><Calendar size={12} /> {post.date}</span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-5 h-5 rounded-full bg-gradient-to-br from-[#0057D9] to-[#00C2FF] flex items-center justify-center text-[10px] font-bold text-white">DS</span>
+                        By Datta Sable
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Render content */}
+                  <div 
+                    className="blog-content text-white/80 leading-relaxed text-sm md:text-base space-y-6"
+                    dangerouslySetInnerHTML={{ __html: post.content }}
+                  />
+
+                  {/* Tags */}
+                  {post.tags && post.tags.length > 0 && (
+                    <div className="border-t border-white/[0.06] pt-8 mt-12">
+                      <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-3 font-mono">Tagged under</span>
+                      <div className="flex flex-wrap gap-2">
+                        {post.tags.map((tag) => (
+                          <span 
+                            key={tag} 
+                            className="text-xs text-white/70 bg-white/[0.03] border border-white/[0.06] px-3.5 py-1.5 rounded-full hover:border-[#00C2FF]/30 hover:text-white transition-colors cursor-default font-mono"
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Related Articles Footer CTA */}
+                  <div className="bg-gradient-to-br from-[#0057D9]/10 to-[#00C2FF]/5 border border-[#00C2FF]/10 p-6 md:p-8 rounded-[2rem] flex flex-col md:flex-row items-center justify-between gap-6 mt-12">
+                    <div className="space-y-2 text-left">
+                      <span className="text-[9px] font-bold text-[#00E5A0] uppercase tracking-wider flex items-center gap-1.5 font-mono">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#00E5A0] animate-pulse"></span>
+                        Next Generation JIT Web Builder
+                      </span>
+                      <h4 className="font-extrabold text-lg text-white font-syne">Want to compile layout blueprints with AI?</h4>
+                      <p className="text-xs text-white/50 leading-relaxed max-w-xl">Describe your project features or requirements in our live compiler stream and generate production-ready HTML code instantly.</p>
+                    </div>
+                    <button 
+                      onClick={onStartWorkspace}
+                      className="px-6 py-3 bg-gradient-to-r from-[#0057D9] to-[#00C2FF] text-white font-extrabold text-xs uppercase rounded-xl shadow-md hover:from-[#0066FF] hover:to-[#00D2FF] hover:scale-105 active:scale-95 transition-all cursor-pointer border-none whitespace-nowrap font-mono"
+                    >
+                      Launch AI Workspace
+                    </button>
+                  </div>
+                </article>
+              );
+            })() : (
+              <div className="space-y-12">
+                {/* Hero / Header info */}
+                <div className="text-center max-w-2xl mx-auto space-y-4">
+                  <span className="text-[10px] font-bold text-[#00C2FF] bg-[#00C2FF]/10 px-3 py-1 rounded-full uppercase tracking-wider font-mono">
+                    Engineering Blog
+                  </span>
+                  <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight font-syne">
+                    Technical Insights & Strategy
+                  </h1>
+                  <p className="text-sm md:text-base text-white/50 leading-relaxed">
+                    Deep technical comparisons, cloud hosting guides, and architecture manifestos from the developers of InstantSite AI.
+                  </p>
+                </div>
+
+                {/* Filters and Search Bar */}
+                <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white/[0.02] border border-white/[0.06] p-4 rounded-2xl">
+                  {/* Category Pills */}
+                  <div className="flex flex-wrap gap-2 w-full md:w-auto">
+                    {["All", "Architecture & BI", "Architecture", "AI & Engineering"].map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => setSelectedCategory(cat)}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border focus:outline-none font-mono ${
+                          selectedCategory === cat
+                            ? 'bg-[#0057D9]/20 border-[#00C2FF]/30 text-white shadow-inner'
+                            : 'bg-white/[0.02] border-white/[0.04] text-white/50 hover:text-white hover:border-white/15'
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Search Bar */}
+                  <div className="relative w-full md:w-72">
+                    <Search className="w-4 h-4 text-white/30 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input 
+                      type="text"
+                      placeholder="Search articles..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full bg-[#050B14] border border-white/[0.06] rounded-xl py-2 pl-10 pr-4 text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-[#00C2FF]/30 transition-colors"
+                    />
+                  </div>
+                </div>
+
+                {/* Grid list of posts */}
+                {(() => {
+                  const filtered = posts.filter(post => {
+                    const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory;
+                    const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                          post.excerpt.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                          post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+                    return matchesCategory && matchesSearch;
+                  });
+
+                  if (filtered.length === 0) {
+                    return (
+                      <div className="text-center py-16 bg-white/[0.01] rounded-2xl border border-white/[0.04] w-full">
+                        <h3 className="text-lg font-bold text-white mb-2 font-syne">No articles match your criteria</h3>
+                        <p className="text-xs text-white/40 font-mono">Try adjusting your filters or search terms.</p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {filtered.map((post) => (
+                        <div 
+                          key={post.slug}
+                          onClick={() => onGoBlog(post.slug)}
+                          className="group glass-card bg-[#0F172A]/40 backdrop-blur-3xl border border-white/[0.08] hover:border-[#00C2FF]/30 rounded-[2rem] overflow-hidden flex flex-col justify-between shadow-xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer"
+                        >
+                          <div className="aspect-[16/10] overflow-hidden relative border-b border-white/[0.05]">
+                            <img 
+                              src={post.image} 
+                              alt={post.title} 
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80';
+                              }}
+                            />
+                            <div className="absolute top-4 left-4 z-10">
+                              <span className="text-[9px] font-black text-white bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded-full uppercase tracking-wider border border-white/10 font-mono">
+                                {post.category}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="p-6 flex-1 flex flex-col justify-between text-left space-y-4">
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-3 text-[10px] text-white/40 font-mono">
+                                <span>{post.date}</span>
+                                <span className="w-1 h-1 rounded-full bg-white/20"></span>
+                                <span>{post.readTime} min read</span>
+                              </div>
+                              <h3 className="text-lg font-black text-white tracking-tight group-hover:text-[#00C2FF] transition-colors line-clamp-2 font-syne">
+                                {post.title}
+                              </h3>
+                              <p className="text-xs text-white/50 leading-relaxed line-clamp-3">
+                                {post.excerpt}
+                              </p>
+                            </div>
+
+                            <div className="pt-4 border-t border-white/[0.05] flex items-center justify-between text-[#00C2FF] group-hover:text-[#00E5A0] text-xs font-bold uppercase tracking-wider transition-colors font-mono">
+                              <span>Read Article</span>
+                              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Footer Section */}
         <footer className="relative border-t border-white/[0.06] pt-16 pb-8 bg-slate-950/60 backdrop-blur-2xl overflow-hidden">
           {/* Subtle top glowing line overlay */}
@@ -2911,8 +3227,8 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout, onGoHome, ac
                       <LogoIcon className="w-full h-full" />
                     </div>
                   </div>
-                  <div className="flex flex-col text-left">
-                    <span className="font-black text-sm tracking-tight text-white leading-none uppercase">
+                  <div className="flex flex-col text-left" onClick={() => { if (activeView === 'about' || activeView === 'blog') { onGoHome(); } else { window.scrollTo({ top: 0, behavior: 'smooth' }); } }}>
+                    <span className="font-black text-sm tracking-tight text-white leading-none uppercase cursor-pointer">
                       Instant<span className="bg-gradient-to-r from-[#00C2FF] to-[#00E5A0] bg-clip-text text-transparent">Site</span>
                     </span>
                     <span className="text-[8px] text-white/40 font-bold uppercase tracking-widest mt-1 flex items-center gap-1">
@@ -2928,15 +3244,7 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout, onGoHome, ac
                   <li>
                     <a 
                       href="/features" 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (activeView === 'about') {
-                          onGoHome();
-                          setTimeout(() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }), 150);
-                        } else {
-                          document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
-                        }
-                      }} 
+                      onClick={(e) => handleScrollLink(e, 'features')} 
                       className="hover:text-white transition-colors"
                     >
                       Features
@@ -2945,15 +3253,7 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout, onGoHome, ac
                   <li>
                     <a 
                       href="/demo" 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (activeView === 'about') {
-                          onGoHome();
-                          setTimeout(() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' }), 150);
-                        } else {
-                          document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
-                        }
-                      }} 
+                      onClick={(e) => handleScrollLink(e, 'demo')} 
                       className="hover:text-white transition-colors"
                     >
                       Interactive Demo
@@ -2962,19 +3262,19 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout, onGoHome, ac
                   <li>
                     <a 
                       href="/pricing" 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (activeView === 'about') {
-                          onGoHome();
-                          setTimeout(() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }), 150);
-                        } else {
-                          document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
-                        }
-                      }} 
+                      onClick={(e) => handleScrollLink(e, 'pricing')} 
                       className="hover:text-white transition-colors"
                     >
                       Pricing Options
                     </a>
+                  </li>
+                  <li>
+                    <button 
+                      onClick={() => onGoBlog(null)} 
+                      className="hover:text-white transition-colors cursor-pointer bg-transparent border-none text-left w-full text-xs text-white/50 p-0 font-medium focus:outline-none"
+                    >
+                      Blog Articles
+                    </button>
                   </li>
                   <li><button onClick={onAbout} className="hover:text-white transition-colors cursor-pointer bg-transparent border-none text-left w-full text-xs text-white/50 p-0 font-medium focus:outline-none">About Creator</button></li>
                 </ul>
