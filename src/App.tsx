@@ -46,10 +46,14 @@ function ParticleField() {
       resizeHandler = resize;
       window.addEventListener("resize", resize);
 
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+      const particleCount = isMobile ? 12 : 45;
+      const maxDistance = isMobile ? 65 : 150;
+
       const particles: { x: number; y: number; vx: number; vy: number; size: number; opacity: number; color: string }[] = [];
       const colors = ["#0057D9", "#00C2FF", "#00E5A0"];
 
-      for (let i = 0; i < 45; i++) {
+      for (let i = 0; i < particleCount; i++) {
         particles.push({
           x: Math.random() * width,
           y: Math.random() * height,
@@ -82,12 +86,12 @@ function ParticleField() {
             const dx = p.x - particles[j].x;
             const dy = p.y - particles[j].y;
             const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 150) {
+            if (dist < maxDistance) {
               ctx.beginPath();
               ctx.moveTo(p.x, p.y);
               ctx.lineTo(particles[j].x, particles[j].y);
               ctx.strokeStyle = p.color;
-              ctx.globalAlpha = (1 - dist / 150) * 0.06;
+              ctx.globalAlpha = (1 - dist / maxDistance) * 0.06;
               ctx.lineWidth = 0.5;
               ctx.stroke();
             }
