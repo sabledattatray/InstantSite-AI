@@ -133,7 +133,7 @@ function ParticleField() {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0" />;
+  return <canvas ref={canvasRef} className="fixed inset-0 w-full h-screen pointer-events-none z-0" />;
 }
 
 function LogoIcon({ className = "w-6 h-6" }: { className?: string }) {
@@ -585,9 +585,9 @@ Generate a stunning, ultra-premium, and fully responsive website for: "${clean}"
     <div className="flex h-screen bg-ai-bg text-ai-text font-sans overflow-hidden relative transition-colors duration-300">
       
       {/* Background noise and gradient overlays (NexDial style) */}
-      <div className="absolute inset-0 mesh-gradient pointer-events-none z-0" />
-      <div className="absolute inset-0 grid-pattern pointer-events-none z-0" />
-      <div className="absolute inset-0 noise-overlay pointer-events-none z-0" />
+      <div className="fixed inset-0 mesh-gradient pointer-events-none z-0" />
+      <div className="fixed inset-0 grid-pattern pointer-events-none z-0" />
+      <div className="fixed inset-0 noise-overlay pointer-events-none z-0" />
       <ParticleField />
 
       {/* Floating Ambient Glowing Blobs */}
@@ -1972,9 +1972,9 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout, onGoHome, ac
   return (
     <div className="min-h-screen bg-[#081120] text-[#E2E8F0] font-sans relative overflow-x-hidden selection:bg-[#00C2FF]/30">
       {/* Background noise and mesh (matching NexDial style) */}
-      <div className="absolute inset-0 mesh-gradient pointer-events-none z-0" />
-      <div className="absolute inset-0 grid-pattern pointer-events-none z-0" />
-      <div className="absolute inset-0 noise-overlay pointer-events-none z-0" />
+      <div className="fixed inset-0 mesh-gradient pointer-events-none z-0" />
+      <div className="fixed inset-0 grid-pattern pointer-events-none z-0" />
+      <div className="fixed inset-0 noise-overlay pointer-events-none z-0" />
       <ParticleField />
 
       {/* Header Navigation */}
@@ -3418,9 +3418,9 @@ function AuthPage({ authView, setAuthView, onAuthSuccess, onBackHome }: AuthPage
   return (
     <div className="min-h-screen bg-[#081120] text-[#E2E8F0] font-sans flex items-center justify-center relative p-6">
       {/* Background noise and mesh (matching NexDial style) */}
-      <div className="absolute inset-0 mesh-gradient pointer-events-none z-0" />
-      <div className="absolute inset-0 grid-pattern pointer-events-none z-0" />
-      <div className="absolute inset-0 noise-overlay pointer-events-none z-0" />
+      <div className="fixed inset-0 mesh-gradient pointer-events-none z-0" />
+      <div className="fixed inset-0 grid-pattern pointer-events-none z-0" />
+      <div className="fixed inset-0 noise-overlay pointer-events-none z-0" />
       <ParticleField />
 
       {/* Floating Blobs */}
