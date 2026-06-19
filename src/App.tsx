@@ -2521,7 +2521,7 @@ function LandingPage({ onStart, onStartWorkspace, onLogin }: LandingPageProps) {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[100px] bg-[#0057D9]/10 rounded-full blur-[80px] pointer-events-none"></div>
           
           <div className="max-w-7xl mx-auto px-6 text-left relative z-10">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#0057D9] to-[#00C2FF] flex items-center justify-center shrink-0">
@@ -2579,33 +2579,38 @@ function LandingPage({ onStart, onStartWorkspace, onLogin }: LandingPageProps) {
                 )}
                 <span className="text-[9px] text-white/30">Zero spam. Unsubscribe at any time.</span>
               </div>
-              
-              {/* Creator Card */}
-              <div className="glass-card bg-white/[0.02] border border-white/[0.08] p-5 rounded-2xl relative overflow-hidden group hover:border-[#00C2FF]/30 transition-all duration-300 flex flex-col justify-between">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-[#00C2FF]/10 to-transparent rounded-bl-full opacity-50"></div>
-                <div className="space-y-3">
-                  <span className="text-[10px] font-bold text-[#00C2FF] uppercase tracking-widest block">Featured Creator</span>
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#0057D9] via-[#00C2FF] to-[#00E5A0] flex items-center justify-center shadow-lg text-white font-black text-xs shrink-0 border border-white/15">
-                      DS
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-xs text-white leading-none group-hover:text-[#00C2FF] transition-colors">Datta Sable</h4>
-                      <span className="text-[9px] text-white/40 block mt-0.5">Full Stack Creator</span>
-                    </div>
+            </div>
+
+            {/* Horizontal Premium Creator Card */}
+            <div className="mt-8 mb-12 glass-card bg-white/[0.02] border border-white/[0.08] p-6 rounded-2xl relative overflow-hidden group hover:border-[#00C2FF]/30 transition-all duration-300">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#00C2FF]/10 to-transparent rounded-bl-full opacity-50"></div>
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#0057D9] via-[#00C2FF] to-[#00E5A0] flex items-center justify-center shadow-lg text-white font-black text-sm shrink-0 border border-white/15">
+                    DS
                   </div>
-                  <p className="text-[10px] text-white/50 leading-relaxed">Designing digital products, SaaS architectures, and interactive AI user interfaces.</p>
+                  <div className="text-left">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] font-bold text-[#00C2FF] bg-[#00C2FF]/10 px-2 py-0.5 rounded-full uppercase tracking-wider">Featured Creator</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#00E5A0] animate-pulse"></span>
+                    </div>
+                    <h4 className="font-extrabold text-sm sm:text-base text-white mt-1 group-hover:text-[#00C2FF] transition-colors">Datta Sable</h4>
+                    <p className="text-xs text-white/50 mt-1 max-w-xl leading-relaxed">Designing digital products, SaaS architectures, and interactive AI user interfaces.</p>
+                  </div>
                 </div>
-                <div className="pt-4 border-t border-white/[0.04] mt-3 flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full md:w-auto shrink-0 md:border-l md:border-white/[0.06] md:pl-6">
+                  <div className="text-left">
+                    <span className="text-[8px] font-bold text-white/30 uppercase tracking-widest block">Portfolio Site</span>
+                    <span className="text-xs font-semibold text-white/70">dattasable.com</span>
+                  </div>
                   <a 
                     href="https://dattasable.com" 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="text-[10px] font-bold text-[#00E5A0] hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
+                    className="px-5 py-2.5 bg-gradient-to-r from-[#0057D9] to-[#00C2FF] text-white font-extrabold text-xs uppercase rounded-xl shadow-md hover:from-[#0066FF] hover:to-[#00D2FF] active:scale-95 transition-all cursor-pointer text-center focus:outline-none w-full sm:w-auto"
                   >
-                    Visit portfolio ↗
+                    Visit Website ↗
                   </a>
-                  <span className="text-[8px] font-semibold text-white/20">dattasable.com</span>
                 </div>
               </div>
             </div>
