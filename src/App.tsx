@@ -132,6 +132,26 @@ function ParticleField() {
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0" />;
 }
 
+function LogoIcon({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#0057D9" />
+          <stop offset="50%" stopColor="#00C2FF" />
+          <stop offset="100%" stopColor="#00E5A0" />
+        </linearGradient>
+      </defs>
+      {/* Outer Orbit Ring */}
+      <circle cx="50" cy="50" r="38" stroke="url(#logoGrad)" strokeWidth="4" strokeDasharray="16 10" className="animate-spin" style={{ animationDuration: '20s', transformOrigin: 'center' }} />
+      {/* Inner Diamonds */}
+      <path d="M50 20 L75 50 L50 80 L25 50 Z" fill="url(#logoGrad)" />
+      {/* Core glowing orb */}
+      <circle cx="50" cy="50" r="10" fill="#FFFFFF" className="animate-pulse" />
+    </svg>
+  );
+}
+
 export default function App() {
   const [prompt, setPrompt] = useState('');
   const [referenceUrl, setReferenceUrl] = useState('');
@@ -539,13 +559,17 @@ Generate a stunning, ultra-premium, and fully responsive website for: "${clean}"
       {!isFullscreen && (
       <aside className="w-[72px] lg:w-64 flex-shrink-0 bg-[#0F172A]/40 backdrop-blur-3xl border-r border-white/[0.06] flex flex-col transition-all duration-300 relative z-20 shadow-2xl">
         <div className="h-20 flex items-center px-6 border-b border-white/[0.06] shrink-0 gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#0057D9] via-[#00C2FF] to-[#00E5A0] flex items-center justify-center shadow-lg shadow-[#0057D9]/30 shrink-0 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-            <Sparkles className="w-5 h-5 text-white" />
+          <div className="w-9 h-9 rounded-xl bg-[#090D1A] border border-white/10 flex items-center justify-center shadow-lg relative overflow-hidden shrink-0 group">
+            <div className="absolute -inset-0.5 bg-gradient-to-tr from-[#0057D9] via-[#00C2FF] to-[#00E5A0] rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-300"></div>
+            <div className="relative z-10 w-5 h-5 flex items-center justify-center">
+              <LogoIcon className="w-full h-full" />
+            </div>
           </div>
-          <div className="flex flex-col overflow-hidden">
-            <span className="font-extrabold text-base tracking-tight text-white leading-none">InstantSite <span className="text-[#00C2FF]">AI</span></span>
-            <span className="text-[9px] text-[#64748B] font-semibold tracking-wider uppercase mt-1.5 flex items-center gap-1">
+          <div className="flex flex-col overflow-hidden text-left">
+            <span className="font-black text-sm tracking-tight text-white leading-none uppercase">
+              Instant<span className="bg-gradient-to-r from-[#00C2FF] to-[#00E5A0] bg-clip-text text-transparent">Site</span>
+            </span>
+            <span className="text-[9px] text-[#64748B] font-semibold tracking-wider uppercase mt-1 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-[#00E5A0] animate-pulse"></span>
               Core v2.5
             </span>
@@ -1818,6 +1842,7 @@ interface LandingPageProps {
 function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout }: LandingPageProps) {
   const [emailSub, setEmailSub] = useState("");
   const [isSubbed, setIsSubbed] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<'products' | 'resources' | null>(null);
 
   // Interactive Mockup States
   const [mockLayout, setMockLayout] = useState<'saas' | 'portfolio' | 'store'>('saas');
@@ -1911,19 +1936,116 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout }: LandingPag
       <ParticleField />
 
       {/* Header Navigation */}
-      <header className="fixed top-0 left-0 right-0 h-20 bg-[#081120]/45 backdrop-blur-md border-b border-white/[0.05] z-50 transition-all">
-        <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#0057D9] via-[#00C2FF] to-[#00E5A0] flex items-center justify-center shadow-lg shadow-[#0057D9]/30 overflow-hidden relative group">
-              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-              <Sparkles className="w-5 h-5 text-white" />
+      <header className="fixed top-0 left-0 right-0 h-20 bg-[#081120]/45 backdrop-blur-md border-b border-white/[0.05] z-50 transition-all select-none">
+        <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between relative">
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <div className="w-9 h-9 rounded-xl bg-[#090D1A] border border-white/10 flex items-center justify-center shadow-lg relative overflow-hidden shrink-0">
+              <div className="absolute -inset-0.5 bg-gradient-to-tr from-[#0057D9] via-[#00C2FF] to-[#00E5A0] rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-300"></div>
+              <div className="relative z-10 w-5 h-5 flex items-center justify-center">
+                <LogoIcon className="w-full h-full" />
+              </div>
             </div>
-            <span className="font-extrabold text-base tracking-tight text-white leading-none">InstantSite <span className="text-[#00C2FF]">AI</span></span>
+            <div className="flex flex-col text-left">
+              <span className="font-black text-sm tracking-tight text-white leading-none uppercase">
+                Instant<span className="bg-gradient-to-r from-[#00C2FF] to-[#00E5A0] bg-clip-text text-transparent">Site</span>
+              </span>
+              <span className="text-[8px] text-white/40 font-bold uppercase tracking-widest mt-1 flex items-center gap-1">
+                AI Engine <span className="w-1 h-1 rounded-full bg-[#00E5A0] animate-pulse"></span>
+              </span>
+            </div>
           </div>
 
-          <nav className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-sm font-semibold text-white/60 hover:text-white transition-colors">Features</a>
-            <a href="#demo" className="text-sm font-semibold text-white/60 hover:text-white transition-colors">Interactive Demo</a>
+          <nav className="hidden md:flex items-center gap-8 h-full">
+            {/* Products (Mega Menu Trigger) */}
+            <div 
+              className="relative h-full flex items-center"
+              onMouseEnter={() => setActiveMenu('products')}
+              onMouseLeave={() => setActiveMenu(null)}
+            >
+              <button className="text-sm font-semibold text-white/60 hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 focus:outline-none bg-transparent border-none">
+                <span>Products</span>
+                <ChevronRight className={`w-3.5 h-3.5 transition-transform duration-200 ${activeMenu === 'products' ? 'rotate-90 text-[#00C2FF]' : 'rotate-0'}`} />
+              </button>
+              
+              {/* Mega Menu Dropdown */}
+              {activeMenu === 'products' && (
+                <div className="absolute top-[65px] left-1/2 -translate-x-1/2 w-[580px] bg-[#0E1629]/95 backdrop-blur-2xl border border-white/[0.08] p-6 rounded-3xl shadow-2xl animate-scale-in z-50 grid grid-cols-3 gap-6">
+                  {/* Left columns (links) */}
+                  <div className="col-span-2 grid grid-cols-2 gap-4 text-left">
+                    <div className="space-y-4">
+                      <span className="text-[9px] font-black text-white/30 uppercase tracking-widest block">Core Engine</span>
+                      <a href="#demo" onClick={() => setActiveMenu(null)} className="flex items-start gap-2.5 group/item hover:bg-white/[0.02] p-2 rounded-xl transition-all border border-transparent hover:border-white/[0.04]">
+                        <Zap className="w-4 h-4 text-[#00C2FF] mt-0.5" />
+                        <div>
+                          <span className="text-xs font-bold text-white block group-hover/item:text-[#00C2FF] transition-colors">JIT Compiler</span>
+                          <span className="text-[10px] text-white/40 block mt-0.5">Real-time style compiling.</span>
+                        </div>
+                      </a>
+                      <a href="#features" onClick={() => setActiveMenu(null)} className="flex items-start gap-2.5 group/item hover:bg-white/[0.02] p-2 rounded-xl transition-all border border-transparent hover:border-white/[0.04]">
+                        <Code2 className="w-4 h-4 text-[#00E5A0] mt-0.5" />
+                        <div>
+                          <span className="text-xs font-bold text-white block group-hover/item:text-[#00E5A0] transition-colors">Monaco Editor</span>
+                          <span className="text-[10px] text-white/40 block mt-0.5">Adjust raw code dynamically.</span>
+                        </div>
+                      </a>
+                    </div>
+                    <div className="space-y-4">
+                      <span className="text-[9px] font-black text-white/30 uppercase tracking-widest block">Pipelines</span>
+                      <a href="#features" onClick={() => setActiveMenu(null)} className="flex items-start gap-2.5 group/item hover:bg-white/[0.02] p-2 rounded-xl transition-all border border-transparent hover:border-white/[0.04]">
+                        <Globe className="w-4 h-4 text-rose-400 mt-0.5" />
+                        <div>
+                          <span className="text-xs font-bold text-white block group-hover/item:text-rose-400 transition-colors">Webhook Sync</span>
+                          <span className="text-[10px] text-white/40 block mt-0.5">Instant online deployments.</span>
+                        </div>
+                      </a>
+                      <a href="#features" onClick={() => setActiveMenu(null)} className="flex items-start gap-2.5 group/item hover:bg-white/[0.02] p-2 rounded-xl transition-all border border-transparent hover:border-white/[0.04]">
+                        <Sparkles className="w-4 h-4 text-[#00C2FF] mt-0.5" />
+                        <div>
+                          <span className="text-xs font-bold text-white block group-hover/item:text-[#00C2FF] transition-colors">AI Suggestions</span>
+                          <span className="text-[10px] text-white/40 block mt-0.5">Intelligent design parameters.</span>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  {/* Right column (highlight card) */}
+                  <div className="bg-gradient-to-b from-[#0057D9]/10 to-[#00C2FF]/5 border border-[#00C2FF]/10 p-4 rounded-2xl flex flex-col justify-between text-left">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#00E5A0] animate-pulse"></span>
+                        <span className="text-[9px] font-bold text-[#00E5A0] uppercase tracking-wider">New Release</span>
+                      </div>
+                      <h4 className="font-extrabold text-xs text-white">Interactive Sandbox</h4>
+                      <p className="text-[10px] text-white/50 leading-relaxed">Watch JIT wireframe compilation live with editable DOM components.</p>
+                    </div>
+                    <button onClick={onStartWorkspace} className="w-full mt-3 py-2 bg-gradient-to-r from-[#0057D9] to-[#00C2FF] text-white font-extrabold text-[9px] uppercase rounded-xl shadow-md hover:from-[#0066FF] hover:to-[#00D2FF] transition-all cursor-pointer">
+                      Launch Sandbox
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Resources (Dropdown Trigger) */}
+            <div 
+              className="relative h-full flex items-center"
+              onMouseEnter={() => setActiveMenu('resources')}
+              onMouseLeave={() => setActiveMenu(null)}
+            >
+              <button className="text-sm font-semibold text-white/60 hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 focus:outline-none bg-transparent border-none">
+                <span>Resources</span>
+                <ChevronRight className={`w-3.5 h-3.5 transition-transform duration-200 ${activeMenu === 'resources' ? 'rotate-90 text-[#00C2FF]' : 'rotate-0'}`} />
+              </button>
+              
+              {/* Dropdown Menu */}
+              {activeMenu === 'resources' && (
+                <div className="absolute top-[65px] left-1/2 -translate-x-1/2 w-48 bg-[#0E1629]/95 backdrop-blur-2xl border border-white/[0.08] p-3 rounded-2xl shadow-2xl animate-scale-in z-50 flex flex-col gap-1 text-left">
+                  <a href="#demo" onClick={() => setActiveMenu(null)} className="py-2 px-3 hover:bg-white/[0.03] rounded-xl text-xs text-white/70 hover:text-white transition-colors font-medium">Layout Templates</a>
+                  <a href="#features" onClick={() => setActiveMenu(null)} className="py-2 px-3 hover:bg-white/[0.03] rounded-xl text-xs text-white/70 hover:text-white transition-colors font-medium">Platform Docs</a>
+                  <a href="#pricing" onClick={() => setActiveMenu(null)} className="py-2 px-3 hover:bg-white/[0.03] rounded-xl text-xs text-white/70 hover:text-white transition-colors font-medium">Pricing Plans</a>
+                </div>
+              )}
+            </div>
+
             <a href="#pricing" className="text-sm font-semibold text-white/60 hover:text-white transition-colors">Pricing</a>
             <button onClick={onAbout} className="text-sm font-semibold text-white/60 hover:text-white transition-colors cursor-pointer bg-transparent border-none focus:outline-none">About Creator</button>
           </nav>
@@ -2532,11 +2654,21 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout }: LandingPag
           <div className="max-w-7xl mx-auto px-6 text-left relative z-10">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
               <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#0057D9] to-[#00C2FF] flex items-center justify-center shrink-0">
-                    <Sparkles className="w-4 h-4 text-white" />
+                <div className="flex items-center gap-3 group">
+                  <div className="w-9 h-9 rounded-xl bg-[#090D1A] border border-white/10 flex items-center justify-center shadow-lg relative overflow-hidden shrink-0">
+                    <div className="absolute -inset-0.5 bg-gradient-to-tr from-[#0057D9] via-[#00C2FF] to-[#00E5A0] rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-300"></div>
+                    <div className="relative z-10 w-5 h-5 flex items-center justify-center">
+                      <LogoIcon className="w-full h-full" />
+                    </div>
                   </div>
-                  <span className="font-extrabold text-sm text-white">InstantSite AI</span>
+                  <div className="flex flex-col text-left">
+                    <span className="font-black text-sm tracking-tight text-white leading-none uppercase">
+                      Instant<span className="bg-gradient-to-r from-[#00C2FF] to-[#00E5A0] bg-clip-text text-transparent">Site</span>
+                    </span>
+                    <span className="text-[8px] text-white/40 font-bold uppercase tracking-widest mt-1 flex items-center gap-1">
+                      AI Engine <span className="w-1 h-1 rounded-full bg-[#00E5A0] animate-pulse"></span>
+                    </span>
+                  </div>
                 </div>
                 <p className="text-xs text-white/50 leading-relaxed">Award-winning instant code compiler translating text directives into responsive site interfaces.</p>
               </div>
