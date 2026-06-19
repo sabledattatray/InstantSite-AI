@@ -170,8 +170,38 @@ export default function App() {
   const [typography, setTypography] = useState('Inter (Sans-serif)');
   const [brandColor, setBrandColor] = useState('indigo');
   
-  // State
-  const [currentRoute, setCurrentRoute] = useState<'landing' | 'auth' | 'workspace' | 'about'>('landing');
+  // Path Router Synchronization
+  const getRouteFromPath = (): 'landing' | 'auth' | 'workspace' | 'about' => {
+    const path = window.location.pathname;
+    if (path.startsWith('/about')) return 'about';
+    if (path.startsWith('/auth') || path.startsWith('/login') || path.startsWith('/register')) return 'auth';
+    if (path.startsWith('/workspace')) return 'workspace';
+    return 'landing';
+  };
+
+  const [currentRoute, setCurrentRouteState] = useState<'landing' | 'auth' | 'workspace' | 'about'>(getRouteFromPath());
+
+  const setCurrentRoute = (route: 'landing' | 'auth' | 'workspace' | 'about') => {
+    setCurrentRouteState(route);
+    let path = '/';
+    if (route === 'about') path = '/about';
+    else if (route === 'auth') path = '/auth';
+    else if (route === 'workspace') path = '/workspace';
+    
+    if (window.location.pathname !== path) {
+      window.history.pushState(null, '', path);
+    }
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentRouteState(getRouteFromPath());
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
   const [authView, setAuthView] = useState<'login' | 'register'>('login');
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
 
@@ -251,13 +281,12 @@ export default function App() {
     };
   }, []);
 
-  // Clear URL hash on route transitions and scroll to top on return
+  // Clear URL hash to ensure clean URLs
   useEffect(() => {
-    if (currentRoute !== 'landing') {
-      if (window.location.hash) {
-        window.history.pushState("", document.title, window.location.pathname + window.location.search);
-      }
-    } else {
+    if (window.location.hash) {
+      window.history.replaceState("", document.title, window.location.pathname + window.location.search);
+    }
+    if (currentRoute === 'landing') {
       window.scrollTo({ top: 0 });
     }
   }, [currentRoute]);
@@ -524,20 +553,16 @@ Generate a stunning, ultra-premium, and fully responsive website for: "${clean}"
     }, 1500);
   };
 
-  if (currentRoute === 'landing') {
+  if (currentRoute === 'landing' || currentRoute === 'about') {
     return (
       <LandingPage 
         onStart={() => { setAuthView('register'); setCurrentRoute('auth'); }} 
         onStartWorkspace={() => { setUser({ name: 'Pro Developer', email: 'developer@instantsite.ai' }); setCurrentRoute('workspace'); }} 
         onLogin={() => { setAuthView('login'); setCurrentRoute('auth'); }} 
         onAbout={() => setCurrentRoute('about')}
+        onGoHome={() => setCurrentRoute('landing')}
+        activeView={currentRoute === 'about' ? 'about' : 'home'}
       />
-    );
-  }
-
-  if (currentRoute === 'about') {
-    return (
-      <AboutPage onBackHome={() => setCurrentRoute('landing')} />
     );
   }
 
@@ -1779,9 +1804,9 @@ Generate a stunning, ultra-premium, and fully responsive website for: "${clean}"
                 <div className="flex flex-col pt-4 border-t border-white/[0.06] text-xs text-white/30">
                   <p>© 2026 InstantSite AI</p>
                   <div className="flex items-center gap-3 mt-2">
-                    <a href="#" className="hover:text-white transition-colors">Documentation</a>
-                    <a href="#" className="hover:text-white transition-colors">Twitter</a>
-                    <a href="#" className="hover:text-white transition-colors">Support</a>
+                    <a href="/docs" onClick={(e) => e.preventDefault()} className="hover:text-white transition-colors">Documentation</a>
+                    <a href="/twitter" onClick={(e) => e.preventDefault()} className="hover:text-white transition-colors">Twitter</a>
+                    <a href="/support" onClick={(e) => e.preventDefault()} className="hover:text-white transition-colors">Support</a>
                   </div>
                 </div>
               </div>
@@ -1848,9 +1873,11 @@ interface LandingPageProps {
   onStartWorkspace: () => void;
   onLogin: () => void;
   onAbout: () => void;
+  onGoHome: () => void;
+  activeView: 'home' | 'about';
 }
 
-function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout }: LandingPageProps) {
+function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout, onGoHome, activeView }: LandingPageProps) {
   const [emailSub, setEmailSub] = useState("");
   const [isSubbed, setIsSubbed] = useState(false);
   const [activeMenu, setActiveMenu] = useState<'products' | 'resources' | null>(null);
@@ -1949,7 +1976,7 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout }: LandingPag
       {/* Header Navigation */}
       <header className="fixed top-0 left-0 right-0 h-20 bg-[#081120]/45 backdrop-blur-md border-b border-white/[0.05] z-50 transition-all select-none">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between relative">
-          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => { if (activeView === 'about') { onGoHome(); } else { window.scrollTo({ top: 0, behavior: 'smooth' }); } }}>
             <div className="w-9 h-9 rounded-xl bg-[#090D1A] border border-white/10 flex items-center justify-center shadow-lg relative overflow-hidden shrink-0">
               <div className="absolute -inset-0.5 bg-gradient-to-tr from-[#0057D9] via-[#00C2FF] to-[#00E5A0] rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-300"></div>
               <div className="relative z-10 w-5 h-5 flex items-center justify-center">
@@ -1985,14 +2012,39 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout }: LandingPag
                   <div className="col-span-2 grid grid-cols-2 gap-4 text-left">
                     <div className="space-y-4">
                       <span className="text-[9px] font-black text-white/30 uppercase tracking-widest block">Core Engine</span>
-                      <a href="#demo" onClick={() => setActiveMenu(null)} className="flex items-start gap-2.5 group/item hover:bg-white/[0.02] p-2 rounded-xl transition-all border border-transparent hover:border-white/[0.04]">
+                      <a 
+                        href="/demo" 
+                        onClick={(e) => { 
+                          e.preventDefault();
+                          setActiveMenu(null); 
+                          if (activeView === 'about') { 
+                            onGoHome(); 
+                            setTimeout(() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' }), 150); 
+                          } else {
+                            document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        }} 
+                        className="flex items-start gap-2.5 group/item hover:bg-white/[0.02] p-2 rounded-xl transition-all border border-transparent hover:border-white/[0.04]"
+                      >
                         <Zap className="w-4 h-4 text-[#00C2FF] mt-0.5" />
                         <div>
                           <span className="text-xs font-bold text-white block group-hover/item:text-[#00C2FF] transition-colors">JIT Compiler</span>
                           <span className="text-[10px] text-white/40 block mt-0.5">Real-time style compiling.</span>
                         </div>
                       </a>
-                      <a href="#features" onClick={() => setActiveMenu(null)} className="flex items-start gap-2.5 group/item hover:bg-white/[0.02] p-2 rounded-xl transition-all border border-transparent hover:border-white/[0.04]">
+                      <a 
+                        href="/features" 
+                        onClick={(e) => { 
+                          e.preventDefault();
+                          setActiveMenu(null); 
+                          if (activeView === 'about') { 
+                            onGoHome(); 
+                            setTimeout(() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }), 150); 
+                          } else {
+                            document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        }} 
+                        className="flex items-start gap-2.5 group/item hover:bg-white/[0.02] p-2 rounded-xl transition-all border border-transparent hover:border-white/[0.04]">
                         <Code2 className="w-4 h-4 text-[#00E5A0] mt-0.5" />
                         <div>
                           <span className="text-xs font-bold text-white block group-hover/item:text-[#00E5A0] transition-colors">Monaco Editor</span>
@@ -2002,14 +2054,38 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout }: LandingPag
                     </div>
                     <div className="space-y-4">
                       <span className="text-[9px] font-black text-white/30 uppercase tracking-widest block">Pipelines</span>
-                      <a href="#features" onClick={() => setActiveMenu(null)} className="flex items-start gap-2.5 group/item hover:bg-white/[0.02] p-2 rounded-xl transition-all border border-transparent hover:border-white/[0.04]">
+                      <a 
+                        href="/features" 
+                        onClick={(e) => { 
+                          e.preventDefault();
+                          setActiveMenu(null); 
+                          if (activeView === 'about') { 
+                            onGoHome(); 
+                            setTimeout(() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }), 150); 
+                          } else {
+                            document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        }} 
+                        className="flex items-start gap-2.5 group/item hover:bg-white/[0.02] p-2 rounded-xl transition-all border border-transparent hover:border-white/[0.04]">
                         <Globe className="w-4 h-4 text-rose-400 mt-0.5" />
                         <div>
                           <span className="text-xs font-bold text-white block group-hover/item:text-rose-400 transition-colors">Webhook Sync</span>
                           <span className="text-[10px] text-white/40 block mt-0.5">Instant online deployments.</span>
                         </div>
                       </a>
-                      <a href="#features" onClick={() => setActiveMenu(null)} className="flex items-start gap-2.5 group/item hover:bg-white/[0.02] p-2 rounded-xl transition-all border border-transparent hover:border-white/[0.04]">
+                      <a 
+                        href="/features" 
+                        onClick={(e) => { 
+                          e.preventDefault();
+                          setActiveMenu(null); 
+                          if (activeView === 'about') { 
+                            onGoHome(); 
+                            setTimeout(() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }), 150); 
+                          } else {
+                            document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        }} 
+                        className="flex items-start gap-2.5 group/item hover:bg-white/[0.02] p-2 rounded-xl transition-all border border-transparent hover:border-white/[0.04]">
                         <Sparkles className="w-4 h-4 text-[#00C2FF] mt-0.5" />
                         <div>
                           <span className="text-xs font-bold text-white block group-hover/item:text-[#00C2FF] transition-colors">AI Suggestions</span>
@@ -2050,14 +2126,73 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout }: LandingPag
               {/* Dropdown Menu */}
               {activeMenu === 'resources' && (
                 <div className="absolute top-[65px] left-1/2 -translate-x-1/2 w-48 bg-[#0E1629]/95 backdrop-blur-2xl border border-white/[0.08] p-3 rounded-2xl shadow-2xl animate-scale-in z-50 flex flex-col gap-1 text-left">
-                  <a href="#demo" onClick={() => setActiveMenu(null)} className="py-2 px-3 hover:bg-white/[0.03] rounded-xl text-xs text-white/70 hover:text-white transition-colors font-medium">Layout Templates</a>
-                  <a href="#features" onClick={() => setActiveMenu(null)} className="py-2 px-3 hover:bg-white/[0.03] rounded-xl text-xs text-white/70 hover:text-white transition-colors font-medium">Platform Docs</a>
-                  <a href="#pricing" onClick={() => setActiveMenu(null)} className="py-2 px-3 hover:bg-white/[0.03] rounded-xl text-xs text-white/70 hover:text-white transition-colors font-medium">Pricing Plans</a>
+                  <a 
+                    href="/demo" 
+                    onClick={(e) => { 
+                      e.preventDefault();
+                      setActiveMenu(null); 
+                      if (activeView === 'about') { 
+                        onGoHome(); 
+                        setTimeout(() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' }), 150); 
+                      } else {
+                        document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }} 
+                    className="py-2 px-3 hover:bg-white/[0.03] rounded-xl text-xs text-white/70 hover:text-white transition-colors font-medium"
+                  >
+                    Layout Templates
+                  </a>
+                  <a 
+                    href="/features" 
+                    onClick={(e) => { 
+                      e.preventDefault();
+                      setActiveMenu(null); 
+                      if (activeView === 'about') { 
+                        onGoHome(); 
+                        setTimeout(() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }), 150); 
+                      } else {
+                        document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }} 
+                    className="py-2 px-3 hover:bg-white/[0.03] rounded-xl text-xs text-white/70 hover:text-white transition-colors font-medium"
+                  >
+                    Platform Docs
+                  </a>
+                  <a 
+                    href="/pricing" 
+                    onClick={(e) => { 
+                      e.preventDefault();
+                      setActiveMenu(null); 
+                      if (activeView === 'about') { 
+                        onGoHome(); 
+                        setTimeout(() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }), 150); 
+                      } else {
+                        document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }} 
+                    className="py-2 px-3 hover:bg-white/[0.03] rounded-xl text-xs text-white/70 hover:text-white transition-colors font-medium"
+                  >
+                    Pricing Plans
+                  </a>
                 </div>
               )}
             </div>
 
-            <a href="#pricing" className="text-sm font-semibold text-white/60 hover:text-white transition-colors">Pricing</a>
+            <a 
+              href="/pricing" 
+              onClick={(e) => { 
+                e.preventDefault();
+                if (activeView === 'about') { 
+                  onGoHome(); 
+                  setTimeout(() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }), 150); 
+                } else {
+                  document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+                }
+              }} 
+              className="text-sm font-semibold text-white/60 hover:text-white transition-colors"
+            >
+              Pricing
+            </a>
             <button onClick={onAbout} className="text-sm font-semibold text-white/60 hover:text-white transition-colors cursor-pointer bg-transparent border-none focus:outline-none">About Creator</button>
           </nav>
 
@@ -2072,7 +2207,9 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout }: LandingPag
 
       {/* Hero Section */}
       <main className="pt-32 relative z-10">
-        <section className="max-w-7xl mx-auto px-6 text-center space-y-8 pt-10 pb-20">
+        {activeView === 'home' && (
+          <>
+            <section className="max-w-7xl mx-auto px-6 text-center space-y-8 pt-10 pb-20">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#00C2FF]/30 bg-[#00C2FF]/10 text-[#00C2FF] text-xs font-bold uppercase tracking-widest animate-scale-in shadow-[0_0_20px_rgba(0,194,255,0.15)]">
             <Sparkles className="w-3.5 h-3.5 animate-pulse" /> Platform Core v2.5 Live
           </div>
@@ -2654,6 +2791,104 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout }: LandingPag
             </div>
           </div>
         </section>
+          </>
+        )}
+        {activeView === 'about' && (
+          /* About Creator Content */
+          <div className="max-w-5xl mx-auto w-full relative z-10 flex flex-col lg:flex-row gap-12 items-center lg:items-stretch py-4 px-6 mb-16 animate-fade-in">
+            {/* Creator Info / Image Card */}
+            <div className="w-full lg:w-96 flex flex-col justify-between">
+              <div className="glass-card bg-[#0F172A]/40 backdrop-blur-3xl border border-white/[0.08] p-6 rounded-[2rem] shadow-2xl relative overflow-hidden flex flex-col items-center text-center gap-6 group hover:border-[#00C2FF]/30 transition-all duration-300">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#00C2FF]/10 to-transparent rounded-bl-full opacity-50"></div>
+                
+                {/* Double Border Premium Image Wrapper */}
+                <div className="relative w-44 h-44 rounded-full p-1.5 bg-gradient-to-tr from-[#0057D9] via-[#00C2FF] to-[#00E5A0] shadow-xl group-hover:scale-105 transition-transform duration-500">
+                  <div className="absolute inset-0 rounded-full blur-md bg-gradient-to-tr from-[#0057D9] to-[#00C2FF] opacity-40 animate-pulse"></div>
+                  <div className="w-full h-full rounded-full overflow-hidden bg-[#081120] relative border border-white/10">
+                    <img 
+                      src="/author.png" 
+                      alt="Datta Sable" 
+                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" 
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = 'none';
+                        const parent = (e.target as HTMLElement).parentElement;
+                        if (parent) {
+                          const div = document.createElement('div');
+                          div.className = "w-full h-full flex items-center justify-center bg-gradient-to-br from-[#0057D9] to-[#00C2FF] text-white text-4xl font-black";
+                          div.innerText = "DS";
+                          parent.appendChild(div);
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <span className="text-[10px] font-bold text-[#00C2FF] bg-[#00C2FF]/10 px-3 py-1 rounded-full uppercase tracking-wider">Featured Creator</span>
+                  <h2 className="text-2xl font-black text-white mt-3 tracking-tight">Datta Sable</h2>
+                  <p className="text-xs text-[#00E5A0] font-extrabold uppercase tracking-widest mt-1">Full Stack Creator & Architect</p>
+                </div>
+
+                <p className="text-xs text-white/50 leading-relaxed max-w-xs">
+                  Designing digital architectures, deep neural compilers, and next-generation interactive AI user experiences.
+                </p>
+
+                <div className="w-full border-t border-white/[0.06] pt-5 flex items-center justify-around">
+                  <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2.5 bg-white/[0.02] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl text-white/60 hover:text-white transition-all cursor-pointer" title="GitHub"><Github size={16} /></a>
+                  <a href="https://dattasable.com" target="_blank" rel="noopener noreferrer" className="p-2.5 bg-white/[0.02] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl text-white/60 hover:text-[#00E5A0] transition-all cursor-pointer font-bold text-xs" title="Website">↗</a>
+                  <a href="mailto:contact@dattasable.com" className="p-2.5 bg-white/[0.02] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl text-white/60 hover:text-rose-400 transition-all cursor-pointer" title="Email"><Mail size={16} /></a>
+                </div>
+              </div>
+            </div>
+
+            {/* Vision & Details Card */}
+            <div className="flex-1 flex flex-col gap-6">
+              <div className="glass-card bg-[#0F172A]/40 backdrop-blur-3xl border border-white/[0.08] p-6 lg:p-8 rounded-[2rem] shadow-2xl space-y-6 text-left flex-1 flex flex-col justify-between">
+                <div className="space-y-6">
+                  <div>
+                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-2">Our Mission</span>
+                    <h3 className="text-3xl font-extrabold tracking-tight"><span className="gradient-text-hero">Empowering Anyone to Build the Web.</span></h3>
+                  </div>
+
+                  <div className="space-y-4 text-sm text-white/70 leading-relaxed">
+                    <p>
+                      InstantSite AI started with a simple belief: <strong>websites should be compiled at the speed of thought.</strong> Traditional development loops, syntax learning, and environment configurations create barriers for creative minds.
+                    </p>
+                    <p>
+                      By leveraging state-of-the-art Generative Models combined with a Just-In-Time (JIT) layout compiler, we translate plain text instructions into standards-compliant HTML, Tailwind CSS, and custom JavaScript animations instantly.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-white/[0.05]">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-bold text-[#00E5A0] uppercase tracking-wider block">Visual Precision</span>
+                      <p className="text-xs text-white/50 leading-relaxed">Real-time compilation that mirrors custom presets, modern fonts, and accent options instantly.</p>
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-bold text-[#00C2FF] uppercase tracking-wider block">Developer Friendly</span>
+                      <p className="text-xs text-white/50 leading-relaxed">Access clean, fully editable outputs immediately via Monaco Editor and direct Git imports.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-white/[0.05] flex flex-wrap items-center justify-between gap-4">
+                  <div className="text-left">
+                    <span className="text-[8px] font-bold text-white/30 uppercase tracking-widest block">Portfolio and Projects</span>
+                    <span className="text-xs font-semibold text-white/70">Explore all creations</span>
+                  </div>
+                  <a 
+                    href="https://dattasable.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="px-6 py-3 bg-gradient-to-r from-[#0057D9] via-[#00C2FF] to-[#00E5A0] text-white font-extrabold text-xs uppercase rounded-xl shadow-lg hover:shadow-cyan-500/20 active:scale-95 transition-all cursor-pointer text-center focus:outline-none"
+                  >
+                    Visit dattasable.com ↗
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Footer Section */}
         <footer className="relative border-t border-white/[0.06] pt-16 pb-8 bg-slate-950/60 backdrop-blur-2xl overflow-hidden">
@@ -2686,18 +2921,66 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout }: LandingPag
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-widest text-white mb-4">Product</h4>
                 <ul className="space-y-2 text-xs text-white/50">
-                  <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-                  <li><a href="#demo" className="hover:text-white transition-colors">Interactive Demo</a></li>
-                  <li><a href="#pricing" className="hover:text-white transition-colors">Pricing Options</a></li>
+                  <li>
+                    <a 
+                      href="/features" 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (activeView === 'about') {
+                          onGoHome();
+                          setTimeout(() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }), 150);
+                        } else {
+                          document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                        }
+                      }} 
+                      className="hover:text-white transition-colors"
+                    >
+                      Features
+                    </a>
+                  </li>
+                  <li>
+                    <a 
+                      href="/demo" 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (activeView === 'about') {
+                          onGoHome();
+                          setTimeout(() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' }), 150);
+                        } else {
+                          document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' });
+                        }
+                      }} 
+                      className="hover:text-white transition-colors"
+                    >
+                      Interactive Demo
+                    </a>
+                  </li>
+                  <li>
+                    <a 
+                      href="/pricing" 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        if (activeView === 'about') {
+                          onGoHome();
+                          setTimeout(() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' }), 150);
+                        } else {
+                          document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+                        }
+                      }} 
+                      className="hover:text-white transition-colors"
+                    >
+                      Pricing Options
+                    </a>
+                  </li>
                   <li><button onClick={onAbout} className="hover:text-white transition-colors cursor-pointer bg-transparent border-none text-left w-full text-xs text-white/50 p-0 font-medium focus:outline-none">About Creator</button></li>
                 </ul>
               </div>
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-widest text-white mb-4">Developer Tools</h4>
                 <ul className="space-y-2 text-xs text-white/50">
-                  <li><a href="#" className="hover:text-white transition-colors">API Docs</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">Tailwind Integration</a></li>
-                  <li><a href="#" className="hover:text-white transition-colors">GitHub Repository</a></li>
+                  <li><a href="/docs" onClick={(e) => e.preventDefault()} className="hover:text-white transition-colors">API Docs</a></li>
+                  <li><a href="/tailwind" onClick={(e) => e.preventDefault()} className="hover:text-white transition-colors">Tailwind Integration</a></li>
+                  <li><a href="/github" onClick={(e) => e.preventDefault()} className="hover:text-white transition-colors">GitHub Repository</a></li>
                 </ul>
               </div>
               <div className="space-y-4 flex flex-col justify-start">
@@ -2784,8 +3067,8 @@ function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout }: LandingPag
                 </p>
               </div>
               <div className="flex gap-4">
-                <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-                <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+                <a href="/privacy" onClick={(e) => e.preventDefault()} className="hover:text-white transition-colors">Privacy Policy</a>
+                <a href="/terms" onClick={(e) => e.preventDefault()} className="hover:text-white transition-colors">Terms of Service</a>
               </div>
             </div>
           </div>
@@ -3270,137 +3553,3 @@ function AuthPage({ authView, setAuthView, onAuthSuccess, onBackHome }: AuthPage
   );
 }
 
-function AboutPage({ onBackHome }: { onBackHome: () => void }) {
-  return (
-    <div className="min-h-screen bg-[#081120] text-[#E2E8F0] font-sans relative overflow-x-hidden selection:bg-[#00C2FF]/30 p-6 flex flex-col justify-between">
-      {/* Background noise and mesh (matching NexDial style) */}
-      <div className="absolute inset-0 mesh-gradient pointer-events-none z-0" />
-      <div className="absolute inset-0 grid-pattern pointer-events-none z-0" />
-      <div className="absolute inset-0 noise-overlay pointer-events-none z-0" />
-      <ParticleField />
-
-      {/* Floating Ambient Glowing Blobs */}
-      <div className="absolute top-[10%] left-[20%] w-[350px] h-[350px] bg-[#0057D9]/10 rounded-full blur-[90px] animate-pulse pointer-events-none z-0" style={{ animationDuration: '8s' }} />
-      <div className="absolute bottom-[20%] right-[10%] w-[400px] h-[400px] bg-[#00E5A0]/6 rounded-full blur-[110px] pointer-events-none z-0" style={{ animationDuration: '12s' }} />
-
-      {/* Header Bar */}
-      <header className="max-w-7xl mx-auto w-full h-20 flex items-center justify-between border-b border-white/[0.05] relative z-10 shrink-0 mb-8 sm:mb-12">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={onBackHome}>
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#0057D9] to-[#00C2FF] flex items-center justify-center shadow-lg shadow-[#0057D9]/20">
-            <Sparkles className="w-4 h-4 text-white" />
-          </div>
-          <span className="font-extrabold text-sm text-white">InstantSite AI</span>
-        </div>
-        <button 
-          onClick={onBackHome}
-          className="px-4 py-2 bg-white/[0.03] border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.06] text-white rounded-xl flex items-center gap-2 text-xs font-semibold shadow transition-all cursor-pointer focus:outline-none"
-        >
-          <History className="w-3.5 h-3.5 rotate-180" />
-          <span>Back to Home</span>
-        </button>
-      </header>
-
-      {/* Main Container */}
-      <main className="max-w-5xl mx-auto w-full flex-1 relative z-10 flex flex-col lg:flex-row gap-12 items-center lg:items-stretch py-4">
-        
-        {/* Creator Info / Image Card */}
-        <div className="w-full lg:w-96 flex flex-col justify-between">
-          <div className="glass-card bg-[#0F172A]/40 backdrop-blur-3xl border border-white/[0.08] p-6 rounded-[2rem] shadow-2xl relative overflow-hidden flex flex-col items-center text-center gap-6 group hover:border-[#00C2FF]/30 transition-all duration-300">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#00C2FF]/10 to-transparent rounded-bl-full opacity-50"></div>
-            
-            {/* Double Border Premium Image Wrapper */}
-            <div className="relative w-44 h-44 rounded-full p-1.5 bg-gradient-to-tr from-[#0057D9] via-[#00C2FF] to-[#00E5A0] shadow-xl group-hover:scale-105 transition-transform duration-500">
-              <div className="absolute inset-0 rounded-full blur-md bg-gradient-to-tr from-[#0057D9] to-[#00C2FF] opacity-40 animate-pulse"></div>
-              <div className="w-full h-full rounded-full overflow-hidden bg-[#081120] relative border border-white/10">
-                <img 
-                  src="/author.png" 
-                  alt="Datta Sable" 
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" 
-                  onError={(e) => {
-                    (e.target as HTMLElement).style.display = 'none';
-                    const parent = (e.target as HTMLElement).parentElement;
-                    if (parent) {
-                      const div = document.createElement('div');
-                      div.className = "w-full h-full flex items-center justify-center bg-gradient-to-br from-[#0057D9] to-[#00C2FF] text-white text-4xl font-black";
-                      div.innerText = "DS";
-                      parent.appendChild(div);
-                    }
-                  }}
-                />
-              </div>
-            </div>
-
-            <div>
-              <span className="text-[10px] font-bold text-[#00C2FF] bg-[#00C2FF]/10 px-3 py-1 rounded-full uppercase tracking-wider">Featured Creator</span>
-              <h2 className="text-2xl font-black text-white mt-3 tracking-tight">Datta Sable</h2>
-              <p className="text-xs text-[#00E5A0] font-extrabold uppercase tracking-widest mt-1">Full Stack Creator & Architect</p>
-            </div>
-
-            <p className="text-xs text-white/50 leading-relaxed max-w-xs">
-              Designing digital architectures, deep neural compilers, and next-generation interactive AI user experiences.
-            </p>
-
-            <div className="w-full border-t border-white/[0.06] pt-5 flex items-center justify-around">
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2.5 bg-white/[0.02] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl text-white/60 hover:text-white transition-all cursor-pointer" title="GitHub"><Github size={16} /></a>
-              <a href="https://dattasable.com" target="_blank" rel="noopener noreferrer" className="p-2.5 bg-white/[0.02] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl text-white/60 hover:text-[#00E5A0] transition-all cursor-pointer font-bold text-xs" title="Website">↗</a>
-              <a href="mailto:contact@dattasable.com" className="p-2.5 bg-white/[0.02] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl text-white/60 hover:text-rose-400 transition-all cursor-pointer" title="Email"><Mail size={16} /></a>
-            </div>
-          </div>
-        </div>
-
-        {/* Vision & Details Card */}
-        <div className="flex-1 flex flex-col gap-6">
-          <div className="glass-card bg-[#0F172A]/40 backdrop-blur-3xl border border-white/[0.08] p-6 lg:p-8 rounded-[2rem] shadow-2xl space-y-6 text-left flex-1 flex flex-col justify-between">
-            <div className="space-y-6">
-              <div>
-                <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-2">Our Mission</span>
-                <h3 className="text-3xl font-extrabold tracking-tight"><span className="gradient-text-hero">Empowering Anyone to Build the Web.</span></h3>
-              </div>
-
-              <div className="space-y-4 text-sm text-white/70 leading-relaxed">
-                <p>
-                  InstantSite AI started with a simple belief: <strong>websites should be compiled at the speed of thought.</strong> Traditional development loops, syntax learning, and environment configurations create barriers for creative minds.
-                </p>
-                <p>
-                  By leveraging state-of-the-art Generative Models combined with a Just-In-Time (JIT) layout compiler, we translate plain text instructions into standards-compliant HTML, Tailwind CSS, and custom JavaScript animations instantly.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-white/[0.05]">
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-[#00E5A0] uppercase tracking-wider block">Visual Precision</span>
-                  <p className="text-xs text-white/50 leading-relaxed">Real-time compilation that mirrors custom presets, modern fonts, and accent options instantly.</p>
-                </div>
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-[#00C2FF] uppercase tracking-wider block">Developer Friendly</span>
-                  <p className="text-xs text-white/50 leading-relaxed">Access clean, fully editable outputs immediately via Monaco Editor and direct Git imports.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-6 border-t border-white/[0.05] flex flex-wrap items-center justify-between gap-4">
-              <div className="text-left">
-                <span className="text-[8px] font-bold text-white/30 uppercase tracking-widest block">Portfolio and Projects</span>
-                <span className="text-xs font-semibold text-white/70">Explore all creations</span>
-              </div>
-              <a 
-                href="https://dattasable.com" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="px-6 py-3 bg-gradient-to-r from-[#0057D9] via-[#00C2FF] to-[#00E5A0] text-white font-extrabold text-xs uppercase rounded-xl shadow-lg hover:shadow-cyan-500/20 active:scale-95 transition-all cursor-pointer text-center focus:outline-none"
-              >
-                Visit dattasable.com ↗
-              </a>
-            </div>
-          </div>
-        </div>
-
-      </main>
-
-      {/* Footer copyright */}
-      <footer className="max-w-7xl mx-auto w-full pt-8 pb-4 border-t border-white/[0.05] relative z-10 shrink-0 text-center text-xs text-white/30 mt-8">
-        <p>© 2026 InstantSite AI Platform • Built with ❤️ by Datta Sable</p>
-      </footer>
-    </div>
-  );
-}
