@@ -515,7 +515,7 @@ Generate a stunning, ultra-premium, and fully responsive website for: "${clean}"
   }
 
   return (
-    <div className="flex h-screen bg-[#081120] text-[#E2E8F0] font-sans overflow-hidden relative">
+    <div className="flex h-screen bg-ai-bg text-ai-text font-sans overflow-hidden relative transition-colors duration-300">
       
       {/* Background noise and gradient overlays (NexDial style) */}
       <div className="absolute inset-0 mesh-gradient pointer-events-none z-0" />
@@ -1036,7 +1036,7 @@ Generate a stunning, ultra-premium, and fully responsive website for: "${clean}"
                             <Editor
                               height="100%"
                               language={activeTab === 'html' ? 'html' : activeTab === 'css' ? 'css' : 'javascript'}
-                              theme="vs-dark"
+                              theme={theme === 'dark' ? 'vs-dark' : 'vs'}
                               value={activeTab === 'html' ? site?.html || '' : activeTab === 'css' ? site?.css || '' : site?.js || ''}
                               options={{
                                 minimap: { enabled: false },

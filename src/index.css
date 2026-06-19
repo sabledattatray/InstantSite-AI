@@ -45,6 +45,7 @@
   --text-color: #E2E8F0;
   --text-muted: #64748B;
   --border-color: rgba(255, 255, 255, 0.08);
+  --grid-color: rgba(255, 255, 255, 0.02);
 }
 
 :root.light {
@@ -53,6 +54,14 @@
   --text-color: #0F172A;
   --text-muted: #64748B;
   --border-color: #E2E8F0;
+  --card-border: rgba(15, 23, 42, 0.08);
+  --card-bg: rgba(255, 255, 255, 0.75);
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(15, 23, 42, 0.08);
+  --glow-blue: rgba(0, 87, 217, 0.15);
+  --glow-cyan: rgba(0, 194, 255, 0.1);
+  --glow-green: rgba(0, 229, 160, 0.15);
+  --grid-color: rgba(15, 23, 42, 0.03);
 }
 
 body {
@@ -165,17 +174,17 @@ body {
 /* Animated Background Mesh */
 .mesh-gradient {
   background: 
-    radial-gradient(ellipse at 20% 50%, rgba(0, 87, 217, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(0, 194, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at 40% 80%, rgba(0, 229, 160, 0.08) 0%, transparent 50%),
-    var(--dark-bg);
+    radial-gradient(ellipse at 20% 50%, var(--glow-blue) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, var(--glow-cyan) 0%, transparent 50%),
+    radial-gradient(ellipse at 40% 80%, var(--glow-green) 0%, transparent 50%),
+    var(--bg-color);
 }
 
 /* Grid Pattern Overlay */
 .grid-pattern {
   background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
   background-size: 60px 60px;
 }
 
