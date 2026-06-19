@@ -151,7 +151,7 @@ export default function App() {
   const [brandColor, setBrandColor] = useState('indigo');
   
   // State
-  const [currentRoute, setCurrentRoute] = useState<'landing' | 'auth' | 'workspace'>('landing');
+  const [currentRoute, setCurrentRoute] = useState<'landing' | 'auth' | 'workspace' | 'about'>('landing');
   const [authView, setAuthView] = useState<'login' | 'register'>('login');
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
 
@@ -499,7 +499,14 @@ Generate a stunning, ultra-premium, and fully responsive website for: "${clean}"
         onStart={() => { setAuthView('register'); setCurrentRoute('auth'); }} 
         onStartWorkspace={() => { setUser({ name: 'Pro Developer', email: 'developer@instantsite.ai' }); setCurrentRoute('workspace'); }} 
         onLogin={() => { setAuthView('login'); setCurrentRoute('auth'); }} 
+        onAbout={() => setCurrentRoute('about')}
       />
+    );
+  }
+
+  if (currentRoute === 'about') {
+    return (
+      <AboutPage onBackHome={() => setCurrentRoute('landing')} />
     );
   }
 
@@ -1805,9 +1812,10 @@ interface LandingPageProps {
   onStart: () => void;
   onStartWorkspace: () => void;
   onLogin: () => void;
+  onAbout: () => void;
 }
 
-function LandingPage({ onStart, onStartWorkspace, onLogin }: LandingPageProps) {
+function LandingPage({ onStart, onStartWorkspace, onLogin, onAbout }: LandingPageProps) {
   const [emailSub, setEmailSub] = useState("");
   const [isSubbed, setIsSubbed] = useState(false);
 
@@ -1917,6 +1925,7 @@ function LandingPage({ onStart, onStartWorkspace, onLogin }: LandingPageProps) {
             <a href="#features" className="text-sm font-semibold text-white/60 hover:text-white transition-colors">Features</a>
             <a href="#demo" className="text-sm font-semibold text-white/60 hover:text-white transition-colors">Interactive Demo</a>
             <a href="#pricing" className="text-sm font-semibold text-white/60 hover:text-white transition-colors">Pricing</a>
+            <button onClick={onAbout} className="text-sm font-semibold text-white/60 hover:text-white transition-colors cursor-pointer bg-transparent border-none focus:outline-none">About Creator</button>
           </nav>
 
           <div className="flex items-center gap-4">
@@ -2537,6 +2546,7 @@ function LandingPage({ onStart, onStartWorkspace, onLogin }: LandingPageProps) {
                   <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
                   <li><a href="#demo" className="hover:text-white transition-colors">Interactive Demo</a></li>
                   <li><a href="#pricing" className="hover:text-white transition-colors">Pricing Options</a></li>
+                  <li><button onClick={onAbout} className="hover:text-white transition-colors cursor-pointer bg-transparent border-none text-left w-full text-xs text-white/50 p-0 font-medium focus:outline-none">About Creator</button></li>
                 </ul>
               </div>
               <div>
@@ -3113,6 +3123,141 @@ function AuthPage({ authView, setAuthView, onAuthSuccess, onBackHome }: AuthPage
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function AboutPage({ onBackHome }: { onBackHome: () => void }) {
+  return (
+    <div className="min-h-screen bg-[#081120] text-[#E2E8F0] font-sans relative overflow-x-hidden selection:bg-[#00C2FF]/30 p-6 flex flex-col justify-between">
+      {/* Background noise and mesh (matching NexDial style) */}
+      <div className="absolute inset-0 mesh-gradient pointer-events-none z-0" />
+      <div className="absolute inset-0 grid-pattern pointer-events-none z-0" />
+      <div className="absolute inset-0 noise-overlay pointer-events-none z-0" />
+      <ParticleField />
+
+      {/* Floating Ambient Glowing Blobs */}
+      <div className="absolute top-[10%] left-[20%] w-[350px] h-[350px] bg-[#0057D9]/10 rounded-full blur-[90px] animate-pulse pointer-events-none z-0" style={{ animationDuration: '8s' }} />
+      <div className="absolute bottom-[20%] right-[10%] w-[400px] h-[400px] bg-[#00E5A0]/6 rounded-full blur-[110px] pointer-events-none z-0" style={{ animationDuration: '12s' }} />
+
+      {/* Header Bar */}
+      <header className="max-w-7xl mx-auto w-full h-20 flex items-center justify-between border-b border-white/[0.05] relative z-10 shrink-0 mb-8 sm:mb-12">
+        <div className="flex items-center gap-3 cursor-pointer" onClick={onBackHome}>
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#0057D9] to-[#00C2FF] flex items-center justify-center shadow-lg shadow-[#0057D9]/20">
+            <Sparkles className="w-4 h-4 text-white" />
+          </div>
+          <span className="font-extrabold text-sm text-white">InstantSite AI</span>
+        </div>
+        <button 
+          onClick={onBackHome}
+          className="px-4 py-2 bg-white/[0.03] border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.06] text-white rounded-xl flex items-center gap-2 text-xs font-semibold shadow transition-all cursor-pointer focus:outline-none"
+        >
+          <History className="w-3.5 h-3.5 rotate-180" />
+          <span>Back to Home</span>
+        </button>
+      </header>
+
+      {/* Main Container */}
+      <main className="max-w-5xl mx-auto w-full flex-1 relative z-10 flex flex-col lg:flex-row gap-12 items-center lg:items-stretch py-4">
+        
+        {/* Creator Info / Image Card */}
+        <div className="w-full lg:w-96 flex flex-col justify-between">
+          <div className="glass-card bg-[#0F172A]/40 backdrop-blur-3xl border border-white/[0.08] p-6 rounded-[2rem] shadow-2xl relative overflow-hidden flex flex-col items-center text-center gap-6 group hover:border-[#00C2FF]/30 transition-all duration-300">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#00C2FF]/10 to-transparent rounded-bl-full opacity-50"></div>
+            
+            {/* Double Border Premium Image Wrapper */}
+            <div className="relative w-44 h-44 rounded-full p-1.5 bg-gradient-to-tr from-[#0057D9] via-[#00C2FF] to-[#00E5A0] shadow-xl group-hover:scale-105 transition-transform duration-500">
+              <div className="absolute inset-0 rounded-full blur-md bg-gradient-to-tr from-[#0057D9] to-[#00C2FF] opacity-40 animate-pulse"></div>
+              <div className="w-full h-full rounded-full overflow-hidden bg-[#081120] relative border border-white/10">
+                <img 
+                  src="/author.png" 
+                  alt="Datta Sable" 
+                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" 
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = 'none';
+                    const parent = (e.target as HTMLElement).parentElement;
+                    if (parent) {
+                      const div = document.createElement('div');
+                      div.className = "w-full h-full flex items-center justify-center bg-gradient-to-br from-[#0057D9] to-[#00C2FF] text-white text-4xl font-black";
+                      div.innerText = "DS";
+                      parent.appendChild(div);
+                    }
+                  }}
+                />
+              </div>
+            </div>
+
+            <div>
+              <span className="text-[10px] font-bold text-[#00C2FF] bg-[#00C2FF]/10 px-3 py-1 rounded-full uppercase tracking-wider">Featured Creator</span>
+              <h2 className="text-2xl font-black text-white mt-3 tracking-tight">Datta Sable</h2>
+              <p className="text-xs text-[#00E5A0] font-extrabold uppercase tracking-widest mt-1">Full Stack Creator & Architect</p>
+            </div>
+
+            <p className="text-xs text-white/50 leading-relaxed max-w-xs">
+              Designing digital architectures, deep neural compilers, and next-generation interactive AI user experiences.
+            </p>
+
+            <div className="w-full border-t border-white/[0.06] pt-5 flex items-center justify-around">
+              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2.5 bg-white/[0.02] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl text-white/60 hover:text-white transition-all cursor-pointer" title="GitHub"><Github size={16} /></a>
+              <a href="https://dattasable.com" target="_blank" rel="noopener noreferrer" className="p-2.5 bg-white/[0.02] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl text-white/60 hover:text-[#00E5A0] transition-all cursor-pointer font-bold text-xs" title="Website">↗</a>
+              <a href="mailto:contact@dattasable.com" className="p-2.5 bg-white/[0.02] hover:bg-white/[0.08] border border-white/[0.06] rounded-xl text-white/60 hover:text-rose-400 transition-all cursor-pointer" title="Email"><Mail size={16} /></a>
+            </div>
+          </div>
+        </div>
+
+        {/* Vision & Details Card */}
+        <div className="flex-1 flex flex-col gap-6">
+          <div className="glass-card bg-[#0F172A]/40 backdrop-blur-3xl border border-white/[0.08] p-6 lg:p-8 rounded-[2rem] shadow-2xl space-y-6 text-left flex-1 flex flex-col justify-between">
+            <div className="space-y-6">
+              <div>
+                <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-2">Our Mission</span>
+                <h3 className="text-3xl font-extrabold tracking-tight"><span className="gradient-text-hero">Empowering Anyone to Build the Web.</span></h3>
+              </div>
+
+              <div className="space-y-4 text-sm text-white/70 leading-relaxed">
+                <p>
+                  InstantSite AI started with a simple belief: <strong>websites should be compiled at the speed of thought.</strong> Traditional development loops, syntax learning, and environment configurations create barriers for creative minds.
+                </p>
+                <p>
+                  By leveraging state-of-the-art Generative Models combined with a Just-In-Time (JIT) layout compiler, we translate plain text instructions into standards-compliant HTML, Tailwind CSS, and custom JavaScript animations instantly.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-white/[0.05]">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold text-[#00E5A0] uppercase tracking-wider block">Visual Precision</span>
+                  <p className="text-xs text-white/50 leading-relaxed">Real-time compilation that mirrors custom presets, modern fonts, and accent options instantly.</p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold text-[#00C2FF] uppercase tracking-wider block">Developer Friendly</span>
+                  <p className="text-xs text-white/50 leading-relaxed">Access clean, fully editable outputs immediately via Monaco Editor and direct Git imports.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6 border-t border-white/[0.05] flex flex-wrap items-center justify-between gap-4">
+              <div className="text-left">
+                <span className="text-[8px] font-bold text-white/30 uppercase tracking-widest block">Portfolio and Projects</span>
+                <span className="text-xs font-semibold text-white/70">Explore all creations</span>
+              </div>
+              <a 
+                href="https://dattasable.com" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="px-6 py-3 bg-gradient-to-r from-[#0057D9] via-[#00C2FF] to-[#00E5A0] text-white font-extrabold text-xs uppercase rounded-xl shadow-lg hover:shadow-cyan-500/20 active:scale-95 transition-all cursor-pointer text-center focus:outline-none"
+              >
+                Visit dattasable.com ↗
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </main>
+
+      {/* Footer copyright */}
+      <footer className="max-w-7xl mx-auto w-full pt-8 pb-4 border-t border-white/[0.05] relative z-10 shrink-0 text-center text-xs text-white/30 mt-8">
+        <p>© 2026 InstantSite AI Platform • Built with ❤️ by Datta Sable</p>
+      </footer>
     </div>
   );
 }
