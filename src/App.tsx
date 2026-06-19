@@ -2514,8 +2514,13 @@ function LandingPage({ onStart, onStartWorkspace, onLogin }: LandingPageProps) {
         </section>
 
         {/* Footer Section */}
-        <footer className="border-t border-white/[0.06] pt-16 pb-8 bg-transparent">
-          <div className="max-w-7xl mx-auto px-6 text-left">
+        <footer className="relative border-t border-white/[0.06] pt-16 pb-8 bg-slate-950/60 backdrop-blur-2xl overflow-hidden">
+          {/* Subtle top glowing line overlay */}
+          <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-[#00C2FF]/30 to-transparent"></div>
+          {/* Centered glowing ambient light */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[100px] bg-[#0057D9]/10 rounded-full blur-[80px] pointer-events-none"></div>
+          
+          <div className="max-w-7xl mx-auto px-6 text-left relative z-10">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
