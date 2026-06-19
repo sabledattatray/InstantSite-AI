@@ -2542,35 +2542,37 @@ function LandingPage({ onStart, onStartWorkspace, onLogin }: LandingPageProps) {
                   <li><a href="#" className="hover:text-white transition-colors">GitHub Repository</a></li>
                 </ul>
               </div>
-              <div className="space-y-4">
-                <h4 className="text-xs font-bold uppercase tracking-widest text-white mb-2">JIT Compiler Newsletter</h4>
-                <p className="text-[10px] text-white/40 leading-relaxed">Subscribe via our developer newsletter console.</p>
-                <div className="bg-[#050B14] border border-white/[0.06] rounded-xl p-3 font-mono text-[10px] text-left space-y-1.5 shadow-inner">
-                  <div className="flex items-center justify-between text-white/30 border-b border-white/[0.05] pb-1">
-                    <span>Terminal console v2.5</span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#00E5A0] animate-pulse"></span>
+              <div className="space-y-4 flex flex-col justify-start">
+                <h4 className="text-xs font-bold uppercase tracking-widest text-white mb-2">Join the Newsletter</h4>
+                <p className="text-[10px] text-white/50 leading-relaxed">Get JIT compiler updates, premium layouts, and developer tips weekly.</p>
+                
+                {isSubbed ? (
+                  <div className="p-4 rounded-xl bg-[#00E5A0]/10 border border-[#00E5A0]/20 flex flex-col gap-1.5 animate-scale-in">
+                    <span className="text-xs font-bold text-[#00E5A0]">✨ Welcome to the newsletter!</span>
+                    <span className="text-[10px] text-white/50">You have successfully subscribed to early-access updates.</span>
                   </div>
-                  <div className="text-white/40">guest@instantsite-ai:~$ subscribe_newsletter</div>
-                  {isSubbed ? (
-                    <div className="space-y-1 animate-scale-in">
-                      <div className="text-[#00E5A0] font-bold">&gt;&gt;&gt; [SUCCESS] Node email registered.</div>
-                      <div className="text-white/50">&gt;&gt;&gt; Welcome to the JIT Compiler updates cluster! ✨</div>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleSubscribe} className="flex items-center gap-1 mt-1">
-                      <span className="text-[#00C2FF] font-bold">email:</span>
+                ) : (
+                  <form onSubmit={handleSubscribe} className="relative group w-full">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-[#0057D9] to-[#00C2FF] rounded-xl blur opacity-10 group-focus-within:opacity-25 transition duration-500"></div>
+                    <div className="relative flex bg-white/[0.02] border border-white/[0.08] hover:border-white/15 focus-within:border-[#00C2FF]/30 rounded-xl overflow-hidden p-1 transition-all duration-300">
                       <input 
                         type="email" 
                         required
-                        placeholder="developer@mail.com" 
+                        placeholder="Enter your email" 
                         value={emailSub}
                         onChange={(e) => setEmailSub(e.target.value)}
-                        className="bg-transparent border-none text-white outline-none w-full p-0 text-[10px] placeholder:text-white/10 focus:ring-0 focus:outline-none" 
+                        className="bg-transparent border-none text-white outline-none w-full px-3 text-xs placeholder:text-white/20 focus:ring-0 focus:outline-none" 
                       />
-                      <button type="submit" className="px-2 py-1 bg-white/5 hover:bg-[#0057D9]/20 border border-white/10 hover:border-[#00C2FF]/30 text-white rounded text-[9px] font-bold cursor-pointer shrink-0 transition-all">Submit</button>
-                    </form>
-                  )}
-                </div>
+                      <button 
+                        type="submit" 
+                        className="px-3.5 py-1.5 bg-gradient-to-r from-[#0057D9] to-[#00C2FF] text-white font-bold text-[9px] uppercase rounded-lg shadow-md hover:from-[#0066FF] hover:to-[#00D2FF] transition-all cursor-pointer shrink-0 focus:outline-none"
+                      >
+                        Subscribe
+                      </button>
+                    </div>
+                  </form>
+                )}
+                <span className="text-[9px] text-white/30">Zero spam. Unsubscribe at any time.</span>
               </div>
             </div>
             
