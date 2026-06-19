@@ -8,6 +8,7 @@ interface LivePreviewProps {
   isEditMode?: boolean;
   typography?: string;
   activeBrandColor?: string;
+  isFullscreen?: boolean;
 }
 
 const EDITOR_SCRIPT = `
@@ -148,7 +149,7 @@ const EDITOR_SCRIPT = `
   </script>
 `;
 
-export default function LivePreview({ site, viewportSize = 'desktop', isEditMode = false, typography, activeBrandColor }: LivePreviewProps) {
+export default function LivePreview({ site, viewportSize = 'desktop', isEditMode = false, typography, activeBrandColor, isFullscreen = false }: LivePreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [selectedElement, setSelectedElement] = useState<any>(null);
 
@@ -274,9 +275,9 @@ export default function LivePreview({ site, viewportSize = 'desktop', isEditMode
   };
 
   return (
-    <div className="flex-1 w-full bg-ai-bg/50 relative flex justify-center overflow-auto items-start p-2 sm:p-4 md:p-8">
+    <div className={`flex-1 w-full bg-ai-bg/50 relative flex justify-center overflow-hidden items-start ${isFullscreen ? 'p-0' : 'p-2 sm:p-4 md:p-8'}`}>
       
-      <div className={`${getContainerWidth()} shrink-0 bg-white transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] border border-ai-text/10 overflow-hidden relative ${viewportSize !== 'desktop' ? 'rounded-[2rem] ring-8 ring-ai-surface mx-auto my-4 lg:my-8' : 'rounded-xl h-full'}`}>
+      <div className={`${isFullscreen ? 'w-full h-full rounded-none border-none' : `${getContainerWidth()} border border-ai-text/10`} shrink-0 bg-white transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] overflow-hidden relative ${viewportSize !== 'desktop' && !isFullscreen ? 'rounded-[2rem] ring-8 ring-ai-surface mx-auto my-4 lg:my-8' : isFullscreen ? 'rounded-none' : 'rounded-xl h-full'}`}>
         
         <iframe
           ref={iframeRef}
