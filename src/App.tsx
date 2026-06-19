@@ -625,13 +625,12 @@ Generate a stunning, ultra-premium, and fully responsive website for: "${clean}"
               <LogoIcon className="w-full h-full" />
             </div>
           </div>
-          <div className="flex flex-col overflow-hidden text-left">
+          <div className="hidden lg:flex flex-col text-left">
             <span className="font-black text-sm tracking-tight text-white leading-none uppercase">
               Instant<span className="bg-gradient-to-r from-[#00C2FF] to-[#00E5A0] bg-clip-text text-transparent">Site</span>
             </span>
-            <span className="text-[9px] text-[#64748B] font-semibold tracking-wider uppercase mt-1 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#00E5A0] animate-pulse"></span>
-              Core v2.5
+            <span className="text-[8px] text-white/40 font-bold uppercase tracking-widest mt-1 flex items-center gap-1">
+              AI Engine <span className="w-1 h-1 rounded-full bg-[#00E5A0] animate-pulse"></span>
             </span>
           </div>
         </div>
