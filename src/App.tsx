@@ -2521,7 +2521,7 @@ function LandingPage({ onStart, onStartWorkspace, onLogin }: LandingPageProps) {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[100px] bg-[#0057D9]/10 rounded-full blur-[80px] pointer-events-none"></div>
           
           <div className="max-w-7xl mx-auto px-6 text-left relative z-10">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 mb-12">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#0057D9] to-[#00C2FF] flex items-center justify-center shrink-0">
@@ -2579,10 +2579,52 @@ function LandingPage({ onStart, onStartWorkspace, onLogin }: LandingPageProps) {
                 )}
                 <span className="text-[9px] text-white/30">Zero spam. Unsubscribe at any time.</span>
               </div>
+              
+              {/* Creator Card */}
+              <div className="glass-card bg-white/[0.02] border border-white/[0.08] p-5 rounded-2xl relative overflow-hidden group hover:border-[#00C2FF]/30 transition-all duration-300 flex flex-col justify-between">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-[#00C2FF]/10 to-transparent rounded-bl-full opacity-50"></div>
+                <div className="space-y-3">
+                  <span className="text-[10px] font-bold text-[#00C2FF] uppercase tracking-widest block">Featured Creator</span>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#0057D9] via-[#00C2FF] to-[#00E5A0] flex items-center justify-center shadow-lg text-white font-black text-xs shrink-0 border border-white/15">
+                      DS
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-xs text-white leading-none group-hover:text-[#00C2FF] transition-colors">Datta Sable</h4>
+                      <span className="text-[9px] text-white/40 block mt-0.5">Full Stack Creator</span>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-white/50 leading-relaxed">Designing digital products, SaaS architectures, and interactive AI user interfaces.</p>
+                </div>
+                <div className="pt-4 border-t border-white/[0.04] mt-3 flex items-center justify-between">
+                  <a 
+                    href="https://dattasable.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-[10px] font-bold text-[#00E5A0] hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
+                  >
+                    Visit portfolio ↗
+                  </a>
+                  <span className="text-[8px] font-semibold text-white/20">dattasable.com</span>
+                </div>
+              </div>
             </div>
             
             <div className="border-t border-white/[0.06] pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-white/30 gap-4">
-              <p>© 2026 InstantSite AI Platform. All rights reserved.</p>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
+                <p>© 2026 InstantSite AI Platform. All rights reserved.</p>
+                <p className="flex items-center gap-1">
+                  Built with ❤️ by{" "}
+                  <a 
+                    href="https://dattasable.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-[#00C2FF] hover:underline font-bold transition-all"
+                  >
+                    Datta Sable
+                  </a>
+                </p>
+              </div>
               <div className="flex gap-4">
                 <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
                 <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
@@ -2596,13 +2638,13 @@ function LandingPage({ onStart, onStartWorkspace, onLogin }: LandingPageProps) {
 }
 
 function LandingDemo() {
-  const [promptText, setPromptText] = useState("");
+  const [promptText, setPromptText] = useState("Premium AI SaaS Analytics dashboard with glowing purple neon widgets");
   const [isTyping, setIsTyping] = useState(false);
   const [isCompiling, setIsCompiling] = useState(false);
   const [compileStep, setCompileStep] = useState("");
-  const [showMockup, setShowMockup] = useState(false);
-  const [mockType, setMockType] = useState("");
-  const [activeChip, setActiveChip] = useState<number | null>(null);
+  const [showMockup, setShowMockup] = useState(true);
+  const [mockType, setMockType] = useState("dashboard");
+  const [activeChip, setActiveChip] = useState<number | null>(0);
 
   // Interactivity states for the mockup screens
   const [crmMetric, setCrmMetric] = useState<'sales' | 'users' | 'conversion'>('sales');
@@ -2611,7 +2653,7 @@ function LandingDemo() {
   const [keyboardTheme, setKeyboardTheme] = useState<'grey' | 'cyberpunk' | 'forest'>('grey');
 
   const chips = [
-    { text: "Modern AI CRM dashboard with purple gradient theme", type: "dashboard" },
+    { text: "Premium AI SaaS Analytics dashboard with glowing purple neon widgets", type: "dashboard" },
     { text: "Minimal photography portfolio with serif fonts and light cream cards", type: "portfolio" },
     { text: "Vibrant custom mechanical keyboard storefront with dark grid style", type: "store" }
   ];
@@ -2673,7 +2715,7 @@ function LandingDemo() {
             disabled={isTyping || isCompiling}
             className={`px-3 py-1.5 rounded-full border text-xs font-semibold transition-all cursor-pointer focus:outline-none ${activeChip === idx ? 'bg-[#0057D9]/20 border-indigo-500 text-white' : 'bg-white/[0.02] border-white/[0.06] text-white/50 hover:text-white hover:border-white/15'}`}
           >
-            {idx === 0 ? "📊 AI CRM" : idx === 1 ? "🎨 Photo Portfolio" : "⌨️ Keyboard Store"}
+            {idx === 0 ? "📊 AI SaaS Analytics" : idx === 1 ? "🎨 Creator Portfolio" : "⌨️ E-commerce Store"}
           </button>
         ))}
       </div>
@@ -2716,7 +2758,7 @@ function LandingDemo() {
               <div className="flex items-center justify-between bg-[#0F172A]/50 border border-white/[0.06] px-3 py-2 rounded-xl">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded bg-[#00E5A0] shadow-[0_0_8px_rgba(0,229,160,0.5)] animate-pulse"></span>
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-white">Metrics Workspace</span>
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-white">AI SaaS Workspace</span>
                 </div>
                 <div className="flex gap-1">
                   {(['sales', 'users', 'conversion'] as const).map((m) => (
@@ -2725,7 +2767,7 @@ function LandingDemo() {
                       onClick={() => setCrmMetric(m)}
                       className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase transition-all cursor-pointer ${crmMetric === m ? 'bg-indigo-600 text-white shadow shadow-indigo-500/20' : 'bg-white/5 text-white/45 hover:text-white'}`}
                     >
-                      {m}
+                      {m === 'sales' ? 'mrr' : m === 'users' ? 'visitors' : 'conversion'}
                     </button>
                   ))}
                 </div>
@@ -2736,14 +2778,14 @@ function LandingDemo() {
                 {/* Metric Card */}
                 <div className="bg-white/[0.01] border border-white/[0.05] p-3 rounded-xl flex flex-col justify-between">
                   <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">
-                    {crmMetric === 'sales' ? 'Total Sales' : crmMetric === 'users' ? 'Active Users' : 'Conversion Rate'}
+                    {crmMetric === 'sales' ? 'Monthly Rec. Revenue' : crmMetric === 'users' ? 'Active Visitors' : 'Conversion Rate'}
                   </span>
                   <div className="mt-1">
                     <p className="text-xl font-extrabold text-white leading-none" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-                      {crmMetric === 'sales' ? '$24,850' : crmMetric === 'users' ? '1,204' : '3.42%'}
+                      {crmMetric === 'sales' ? '$48,250' : crmMetric === 'users' ? '142.8K' : '3.42%'}
                     </p>
                     <span className="text-[8px] font-bold text-emerald-400 mt-1 block">
-                      {crmMetric === 'sales' ? '+18.4% ARR' : crmMetric === 'users' ? '+12.3% MoM' : '+2.1% overall'}
+                      {crmMetric === 'sales' ? '+22.4% ARR' : crmMetric === 'users' ? '+15.3% MoM' : '+2.1% overall'}
                     </span>
                   </div>
                 </div>
