@@ -770,7 +770,11 @@ Generate a stunning, ultra-premium, and fully responsive website for: "${clean}"
                         <button
                           onClick={generateSite}
                           disabled={isGenerating || !prompt.trim()}
-                          className="px-6 py-3.5 btn-primary text-white font-extrabold rounded-xl shadow-lg shadow-ai-primary/20 flex items-center gap-2"
+                          className={`px-6 py-3.5 btn-primary text-white font-extrabold rounded-xl flex items-center gap-2 transition-all duration-300 ${
+                            site && site.stylePreset !== stylePreset
+                              ? 'animate-pulse shadow-[0_0_25px_rgba(0,194,255,0.45)] ring-2 ring-[#00C2FF]/50 border border-[#00C2FF]/60'
+                              : 'shadow-lg shadow-ai-primary/20'
+                          }`}
                         >
                           {isGenerating ? (
                             <><Loader2 className="w-4.5 h-4.5 animate-spin" /> Generating...</>
@@ -794,9 +798,22 @@ Generate a stunning, ultra-premium, and fully responsive website for: "${clean}"
                     
                     {/* Style Preset Selector Cards */}
                     <div className="space-y-3">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest flex items-center gap-1.5">
-                        <Layout size={12} className="text-[#00C2FF]"/> Style Preset
-                      </label>
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest flex items-center gap-1.5">
+                          <Layout size={12} className="text-[#00C2FF]"/> Style Preset
+                        </label>
+                        {site && site.stylePreset !== stylePreset && (
+                          <span className="text-[9px] text-[#00C2FF] font-bold uppercase tracking-wider animate-pulse flex items-center gap-1 bg-[#00C2FF]/10 px-2 py-0.5 rounded border border-[#00C2FF]/20">
+                            ⚡ Preset modified
+                          </span>
+                        )}
+                      </div>
+                      {site && site.stylePreset !== stylePreset && (
+                        <p className="text-[10px] text-white/50 bg-[#0057D9]/10 border border-[#0057D9]/20 p-2 rounded-xl leading-relaxed flex items-start gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-[#00C2FF] shrink-0 mt-0.5 animate-pulse" />
+                          <span>This preset alters structural CSS/HTML guidelines. Click <strong>Regenerate</strong> to rebuild your code.</span>
+                        </p>
+                      )}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {[
                           { id: 'Modern SaaS', icon: <Zap size={14} className="text-indigo-400" />, desc: 'Modern tech & SaaS product styling' },
@@ -2580,6 +2597,12 @@ function LandingDemo() {
   const [mockType, setMockType] = useState("");
   const [activeChip, setActiveChip] = useState<number | null>(null);
 
+  // Interactivity states for the mockup screens
+  const [crmMetric, setCrmMetric] = useState<'sales' | 'users' | 'conversion'>('sales');
+  const [portfolioLikes, setPortfolioLikes] = useState<Record<number, boolean>>({});
+  const [storeCartCount, setStoreCartCount] = useState(0);
+  const [keyboardTheme, setKeyboardTheme] = useState<'grey' | 'cyberpunk' | 'forest'>('grey');
+
   const chips = [
     { text: "Modern AI CRM dashboard with purple gradient theme", type: "dashboard" },
     { text: "Minimal photography portfolio with serif fonts and light cream cards", type: "portfolio" },
@@ -2681,61 +2704,173 @@ function LandingDemo() {
           </div>
           
           {mockType === 'dashboard' && (
-            <div className="space-y-4 flex-1 flex flex-col justify-between py-1">
-              <div className="flex items-center justify-between bg-white/[0.02] border border-white/[0.05] p-2 rounded-lg">
-                <div className="w-16 h-3 bg-indigo-500/30 rounded"></div>
-                <div className="w-8 h-3.5 bg-[#0057D9]/20 rounded"></div>
+            <div className="space-y-4 flex-1 flex flex-col justify-between py-1 text-white">
+              {/* Header */}
+              <div className="flex items-center justify-between bg-[#0F172A]/50 border border-white/[0.06] px-3 py-2 rounded-xl">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded bg-[#00E5A0] shadow-[0_0_8px_rgba(0,229,160,0.5)] animate-pulse"></span>
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-white">Metrics Workspace</span>
+                </div>
+                <div className="flex gap-1">
+                  {(['sales', 'users', 'conversion'] as const).map((m) => (
+                    <button
+                      key={m}
+                      onClick={() => setCrmMetric(m)}
+                      className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase transition-all cursor-pointer ${crmMetric === m ? 'bg-indigo-600 text-white shadow shadow-indigo-500/20' : 'bg-white/5 text-white/45 hover:text-white'}`}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="bg-white/[0.01] border border-white/[0.05] p-2.5 rounded-xl space-y-1.5">
-                  <div className="w-12 h-2.5 bg-white/20 rounded"></div>
-                  <div className="w-6 h-4 bg-indigo-400 rounded"></div>
+              
+              {/* Metric & Chart Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-stretch">
+                {/* Metric Card */}
+                <div className="bg-white/[0.01] border border-white/[0.05] p-3 rounded-xl flex flex-col justify-between">
+                  <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest">
+                    {crmMetric === 'sales' ? 'Total Sales' : crmMetric === 'users' ? 'Active Users' : 'Conversion Rate'}
+                  </span>
+                  <div className="mt-1">
+                    <p className="text-xl font-extrabold text-white leading-none" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+                      {crmMetric === 'sales' ? '$24,850' : crmMetric === 'users' ? '1,204' : '3.42%'}
+                    </p>
+                    <span className="text-[8px] font-bold text-emerald-400 mt-1 block">
+                      {crmMetric === 'sales' ? '+18.4% ARR' : crmMetric === 'users' ? '+12.3% MoM' : '+2.1% overall'}
+                    </span>
+                  </div>
                 </div>
-                <div className="bg-white/[0.01] border border-white/[0.05] p-2.5 rounded-xl space-y-1.5">
-                  <div className="w-12 h-2.5 bg-white/20 rounded"></div>
-                  <div className="w-8 h-4 bg-indigo-400 rounded"></div>
+
+                {/* SVG Chart Card */}
+                <div className="md:col-span-2 bg-[#0F172A]/20 border border-white/[0.05] p-3 rounded-xl flex flex-col justify-between relative min-h-[90px]">
+                  <span className="text-[8px] font-bold text-white/30 uppercase tracking-wider block">Real-time Data (Interactive Chart)</span>
+                  <div className="w-full h-12 mt-2 relative">
+                    <svg className="w-full h-full" viewBox="0 0 320 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <line x1="0" y1="20" x2="320" y2="20" stroke="rgba(255,255,255,0.03)" strokeWidth="1" />
+                      <line x1="0" y1="50" x2="320" y2="50" stroke="rgba(255,255,255,0.03)" strokeWidth="1" />
+                      <path
+                        d={
+                          crmMetric === 'sales'
+                            ? "M 10 70 C 60 10, 110 50, 160 20 T 310 10"
+                            : crmMetric === 'users'
+                            ? "M 10 50 C 70 40, 120 20, 180 30 T 310 15"
+                            : "M 10 75 C 60 70, 130 40, 190 45 T 310 30"
+                        }
+                        stroke="#00C2FF"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        className="transition-all duration-700 ease-in-out"
+                        style={{ filter: "drop-shadow(0px 0px 6px rgba(0, 194, 255, 0.4))" }}
+                      />
+                    </svg>
+                  </div>
                 </div>
-                <div className="bg-white/[0.01] border border-white/[0.05] p-2.5 rounded-xl space-y-1.5">
-                  <div className="w-12 h-2.5 bg-white/20 rounded"></div>
-                  <div className="w-6 h-4 bg-indigo-400 rounded"></div>
-                </div>
-              </div>
-              <div className="h-12 bg-white/[0.02] border border-white/[0.05] rounded-xl flex items-center justify-center text-[10px] text-indigo-400/60 font-semibold uppercase tracking-wider">
-                Interactive Graph Visual Placeholder
               </div>
             </div>
           )}
 
           {mockType === 'portfolio' && (
-            <div className="flex-1 flex flex-col items-center justify-between py-2 text-center">
-              <div className="w-12 h-12 rounded-full border border-[#00E5A0]/20 bg-[#00E5A0]/10 flex items-center justify-center">
-                <User size={16} className="text-[#00E5A0]" />
+            <div className="flex-1 flex flex-col justify-between py-2 text-white">
+              {/* Header / Profile info */}
+              <div className="flex items-center justify-between border-b border-white/[0.06] pb-3 mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full border border-emerald-500/20 bg-emerald-500/10 flex items-center justify-center relative overflow-hidden">
+                    <User size={12} className="text-[#00E5A0]" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-[10px] font-bold text-white leading-none">Aria Vance</p>
+                    <span className="text-[8px] text-white/40">Visual Artist</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full text-[8px] font-bold">
+                  <span>❤️</span>
+                  <span className="text-[#00E5A0] font-extrabold">{Object.values(portfolioLikes).filter(Boolean).length} Likes</span>
+                </div>
               </div>
-              <div className="space-y-1">
-                <div className="w-32 h-4 bg-white/30 rounded mx-auto"></div>
-                <div className="w-24 h-2 bg-white/10 rounded mx-auto"></div>
-              </div>
-              <div className="flex gap-2">
-                <span className="w-8 h-4 bg-white/5 rounded border border-white/10"></span>
-                <span className="w-8 h-4 bg-white/5 rounded border border-white/10"></span>
+
+              {/* Photo Showcase Grid */}
+              <div className="grid grid-cols-3 gap-3 my-1">
+                {[
+                  { id: 1, title: "Abstract Depth", grad: "from-[#0057D9] to-indigo-500" },
+                  { id: 2, title: "Neon Cyber", grad: "from-[#00C2FF] to-cyan-500" },
+                  { id: 3, title: "Lush Forest", grad: "from-[#00E5A0] to-emerald-500" }
+                ].map((photo) => {
+                  const isLiked = !!portfolioLikes[photo.id];
+                  return (
+                    <div 
+                      key={photo.id}
+                      className="group/card relative rounded-xl border border-white/[0.06] overflow-hidden bg-white/[0.02] p-1.5 flex flex-col justify-between min-h-[90px] hover:border-emerald-500/20 transition-all duration-300"
+                    >
+                      <div className={`w-full h-10 rounded-lg bg-gradient-to-tr ${photo.grad} opacity-80 group-hover/card:scale-105 transition-transform duration-300`}></div>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-[7px] font-bold uppercase tracking-wider text-white/60 truncate max-w-[50px]">{photo.title}</span>
+                        <button
+                          onClick={() => setPortfolioLikes(prev => ({ ...prev, [photo.id]: !prev[photo.id] }))}
+                          className="p-1 hover:bg-white/10 rounded-md transition-colors cursor-pointer"
+                          title="Like Photo"
+                        >
+                          <span className={`text-[9px] transition-transform active:scale-125 ${isLiked ? 'text-red-500 font-bold' : 'text-white/30 hover:text-white'}`}>
+                            {isLiked ? '❤️' : '♡'}
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
 
           {mockType === 'store' && (
-            <div className="space-y-3 flex-1 flex flex-col justify-between py-1">
-              <div className="flex justify-between items-center">
-                <div className="w-16 h-3 bg-white/35 rounded"></div>
-                <div className="w-3.5 h-3.5 rounded-full bg-rose-500/20"></div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-1.5 bg-white/[0.01] border border-white/[0.06] rounded-xl flex flex-col gap-1.5">
-                  <div className="w-full h-12 bg-gradient-to-tr from-rose-500/10 to-transparent rounded-lg"></div>
-                  <div className="w-12 h-2.5 bg-white/20 rounded"></div>
+            <div className="space-y-3 flex-1 flex flex-col justify-between py-1 text-white">
+              {/* Header */}
+              <div className="flex justify-between items-center bg-white/[0.02] border border-white/[0.06] px-3 py-1.5 rounded-xl">
+                <span className="text-[10px] font-bold text-white tracking-wide">Keyboard Boutique</span>
+                <div className="flex items-center gap-1.5 bg-rose-500/10 border border-rose-500/20 px-2.5 py-0.5 rounded-full text-[8px] font-extrabold text-rose-400">
+                  <span>🛒</span>
+                  <span>{storeCartCount} items</span>
                 </div>
-                <div className="p-1.5 bg-white/[0.01] border border-white/[0.06] rounded-xl flex flex-col gap-1.5">
-                  <div className="w-full h-12 bg-gradient-to-tr from-rose-500/10 to-transparent rounded-lg"></div>
-                  <div className="w-12 h-2.5 bg-white/20 rounded"></div>
+              </div>
+              
+              {/* Customizer grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-center">
+                {/* Controls */}
+                <div className="space-y-2 text-left">
+                  <span className="text-[8px] font-bold text-white/40 uppercase tracking-widest block">Choose Colorcaps:</span>
+                  <div className="flex gap-1">
+                    {(['grey', 'cyberpunk', 'forest'] as const).map((t) => (
+                      <button
+                        key={t}
+                        onClick={() => setKeyboardTheme(t)}
+                        className={`px-1.5 py-0.5 rounded text-[7px] font-bold uppercase transition-all cursor-pointer ${keyboardTheme === t ? 'bg-rose-500 text-white shadow shadow-rose-500/20' : 'bg-white/5 text-white/40 hover:text-white'}`}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => setStoreCartCount(prev => prev + 1)}
+                    className="w-full py-1.5 bg-rose-500 hover:bg-rose-600 active:scale-95 text-[#081120] text-[9px] font-extrabold uppercase rounded-lg shadow-md transition-all cursor-pointer focus:outline-none"
+                  >
+                    Add custom board to cart
+                  </button>
+                </div>
+
+                {/* Keyboard Layout Diagram */}
+                <div className={`p-2 bg-black/60 border rounded-xl flex flex-col gap-1 items-center ${
+                  keyboardTheme === 'grey' ? 'border-slate-600' : keyboardTheme === 'cyberpunk' ? 'border-pink-500/40 shadow-[0_0_10px_rgba(244,63,94,0.15)]' : 'border-emerald-500/40'
+                }`}>
+                  <div className="flex gap-0.5 w-full justify-between">
+                    <span className={`w-3 h-3 rounded-xs ${keyboardTheme === 'grey' ? 'bg-slate-500' : keyboardTheme === 'cyberpunk' ? 'bg-pink-500' : 'bg-emerald-600'} transition-colors`}></span>
+                    <span className={`w-3 h-3 rounded-xs ${keyboardTheme === 'grey' ? 'bg-slate-400' : keyboardTheme === 'cyberpunk' ? 'bg-cyan-500' : 'bg-emerald-500'} transition-colors`}></span>
+                    <span className={`w-3 h-3 rounded-xs ${keyboardTheme === 'grey' ? 'bg-slate-400' : keyboardTheme === 'cyberpunk' ? 'bg-cyan-500' : 'bg-emerald-500'} transition-colors`}></span>
+                    <span className={`w-3 h-3 rounded-xs ${keyboardTheme === 'grey' ? 'bg-slate-400' : keyboardTheme === 'cyberpunk' ? 'bg-cyan-500' : 'bg-emerald-500'} transition-colors`}></span>
+                    <span className={`w-3 h-3 rounded-xs ${keyboardTheme === 'grey' ? 'bg-slate-500' : keyboardTheme === 'cyberpunk' ? 'bg-pink-500' : 'bg-emerald-600'} transition-colors`}></span>
+                  </div>
+                  <div className="flex gap-0.5 w-full justify-center">
+                    <span className={`w-10 h-2.5 rounded-xs ${keyboardTheme === 'grey' ? 'bg-slate-300' : keyboardTheme === 'cyberpunk' ? 'bg-pink-400' : 'bg-amber-100'} transition-colors`}></span>
+                  </div>
+                  <span className="text-[7px] font-bold text-white/30 uppercase mt-1">40% Keyboard Model</span>
                 </div>
               </div>
             </div>

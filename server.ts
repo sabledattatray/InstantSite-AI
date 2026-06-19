@@ -196,6 +196,7 @@ Deliver a visually stunning website that looks like it cost $15,000 to design. M
          result = JSON.parse(sanitizedText);
          result.typography = typography;
          result.brandColor = brandColor;
+         result.stylePreset = stylePreset;
       } catch (e) {
          console.error("JSON parsing error:", e);
          console.error("Raw text was:", text);

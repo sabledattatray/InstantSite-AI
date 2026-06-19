@@ -248,7 +248,7 @@ export default function LivePreview({ site, viewportSize = 'desktop', isEditMode
       iframeRef.current?.contentWindow?.postMessage({ type: 'TOGGLE_EDIT_MODE', payload: isEditMode }, '*');
     }, 100);
 
-  }, [site]);
+  }, [site, typography, activeBrandColor]);
 
   if (!site) {
     return (

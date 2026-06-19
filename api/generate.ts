@@ -209,6 +209,7 @@ FAILURE TO FOLLOW THESE RULES RESULTS IN TERMINATION. Your output must instantly
       result = JSON.parse(sanitizedText);
       result.typography = typography;
       result.brandColor = brandColor;
+      result.stylePreset = stylePreset;
     } catch (e) {
       console.error("JSON parsing error:", e);
       console.error("Raw text was:", text);

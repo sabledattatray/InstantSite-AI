@@ -7,6 +7,7 @@ export interface GeneratedSite {
   js: string;
   typography?: string;
   brandColor?: string;
+  stylePreset?: string;
 }
 
 export type TabType = 'preview' | 'html' | 'css' | 'js';
