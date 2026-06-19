@@ -618,15 +618,19 @@ Generate a stunning, ultra-premium, and fully responsive website for: "${clean}"
       {/* 1. LEFT SIDEBAR */}
       {!isFullscreen && (
       <aside className="w-[72px] lg:w-64 flex-shrink-0 bg-[#0F172A]/40 backdrop-blur-3xl border-r border-white/[0.06] flex flex-col transition-all duration-300 relative z-20 shadow-2xl">
-        <div className="h-20 flex items-center px-6 border-b border-white/[0.06] shrink-0 gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#090D1A] border border-white/10 flex items-center justify-center shadow-lg relative overflow-hidden shrink-0 group">
+        <div
+          className="h-20 flex items-center px-6 border-b border-white/[0.06] shrink-0 gap-3 cursor-pointer group"
+          onClick={() => setCurrentRoute('landing')}
+          title="Back to Home"
+        >
+          <div className="w-9 h-9 rounded-xl bg-[#090D1A] border border-white/10 flex items-center justify-center shadow-lg relative overflow-hidden shrink-0">
             <div className="absolute -inset-0.5 bg-gradient-to-tr from-[#0057D9] via-[#00C2FF] to-[#00E5A0] rounded-xl blur opacity-30 group-hover:opacity-60 transition duration-300"></div>
             <div className="relative z-10 w-5 h-5 flex items-center justify-center">
               <LogoIcon className="w-full h-full" />
             </div>
           </div>
           <div className="hidden lg:flex flex-col text-left">
-            <span className="font-black text-sm tracking-tight text-white leading-none uppercase">
+            <span className="font-black text-sm tracking-tight text-white leading-none uppercase group-hover:opacity-80 transition-opacity">
               Instant<span className="bg-gradient-to-r from-[#00C2FF] to-[#00E5A0] bg-clip-text text-transparent">Site</span>
             </span>
             <span className="text-[8px] text-white/40 font-bold uppercase tracking-widest mt-1 flex items-center gap-1">
